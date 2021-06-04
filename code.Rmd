@@ -9,7 +9,8 @@ knitr::opts_chunk$set(cache = TRUE, comment = "")
 ```{r packages}
 library(tidyverse) # data manipulation and plots
 library(pliman) # plant image analysis
-library() # concordance correlation coefficient
+library(epiR) # concordance correlation coefficient
+library(rio) # import/export data
 ```
 
 
@@ -347,8 +348,8 @@ symptomatic_area(img = img,
 
 
 
-# Batch processing
-## leaf images
+## Batch processing
+### leaf images
 
 ```{r batch1, fig.width=10, fig.height=20}
 # temporary directory
@@ -362,7 +363,7 @@ image_combine(soy_leaves, ncol = 5)
 ```
 
 
-## Severity measurement
+### Severity measurement
 
 
 ```{r batch2}
@@ -382,7 +383,7 @@ soy_rust
 ```
 
 
-## Processed images
+### Processed images
 
 ```{r batch3, fig.width=10, fig.height=20}
 # temporary directory
@@ -396,6 +397,42 @@ image_combine(soy_leaves, ncol = 5)
 ```
 
 
+## Concordance correlation coefficient
 
+```{r}
+
+library(epiR)
+ccc100 <- epi.ccc(bind %>% filter(resolution == 100) %>% .[["Quant"]],
+                  bind %>% filter(resolution == 100) %>% .[["pliman"]])
+ccc100$rho.c
+```
+
+
+# Count objects
+```{r count1}
+
+validation <- rio::import("data/count_objects/count_data.xlsx")
+
+ggplot(validation, aes(REAL, PREDICTED))+
+  geom_point(aes(color = factor(CROP))) +
+  geom_smooth(method = "lm", se = FALSE) +
+  geom_abline(intercept = 0 , slope = 1, linetype = 2) +
+  facet_grid(BACKGROUND ~ RESOLUTION) +
+  labs(x = "Real number of seeds",
+       y = "Counted number of seeds") +
+  theme(legend.position = "bottom",
+        legend.title = element_blank(),
+        axis.ticks.length = unit(0.2, "cm"),
+        panel.grid.minor = element_blank(),
+        panel.spacing = unit(0.2, "cm"),
+        axis.text = element_text(color = "black", size = 12),
+        axis.title = element_text(color = "black", size = 12))+
+  coord_fixed() +
+  scale_x_continuous(limits = c(0, 110),
+                     breaks = seq(0, 110, by = 25)) +
+  scale_y_continuous(limits = c(0, 110),
+                     breaks = seq(0, 110, by = 25))
+
+```
 
 
