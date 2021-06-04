@@ -1,0 +1,401 @@
+% Analysis 
+
+```{r global_options, include = FALSE}
+knitr::opts_chunk$set(cache = TRUE, comment = "")
+
+```
+
+# Packages
+```{r packages}
+library(tidyverse) # data manipulation and plots
+library(pliman) # plant image analysis
+library() # concordance correlation coefficient
+```
+
+
+# Installing pliman
+
+To install the released version of `pliman` from CRAN type:
+```{r eval = FALSE}
+install.packages("pliman")
+```
+
+
+The latest development version of `pliman` can be installed from the GitHub repository. The installation process requires the `devtools` package, which needs to be installed first. If you are a Windows user, you should also first download and install the latest version of [Rtools](https://cran.r-project.org/bin/windows/Rtools/).
+
+```{r, eval=FALSE}
+if(!require(devtools)) install.packages("devtools")
+
+```
+
+After `devtools` properly installed, you can install `pliman` by running the following code. Please, note that the installation will also download the dependencies required to run the package.
+
+```{r, eval=FALSE}
+devtools::install_github("TiagoOlivoto/pliman")
+```
+
+
+Them, load `pliman` by running 
+```{r load, message=FALSE, warning=FALSE}
+
+library(pliman)
+```
+
+
+# Image manipulation
+
+## Importing images
+
+```{r import1 }
+library(pliman)
+soy <- image_import("data/soy_grains.jpg")
+soy2 <- image_import("data/soy_grains_2.jpg")
+
+```
+
+
+To import a list of images, the argument `img_pattern` of the function `image_import()` is used. All images that matches the pattern name are imported into a list.
+
+```{r import2 }
+# set a temporary working directory
+setwd("data")
+soy_list <- image_import(img_pattern = "soy_")
+names(soy_list)
+```
+
+
+
+
+## Displaying images
+Single images are displayed with `image_show()`. For combining images, the function `image_combine()` is used. Users can inform either a comma-separated list of objects or list of objects of class `Image`.
+
+```{r display1, fig.width=12}
+# Single images
+image_show(soy)
+
+# Combine images
+image_combine(soy, soy2)
+
+# Combine images
+image_combine(soy_list)
+
+
+```
+
+
+## Manipulating images
+
+
+`pliman` provides useful functions to perform image transformation of unique images or list of images based on the [EBImage package](https://www.bioconductor.org/packages/release/bioc/vignettes/EBImage/inst/doc/EBImage-introduction.html). All the functions shown here works natturaly either with a single image or a list of images.
+
+### Rezise an image
+`image_resize()` is used to resize an image. The argument `rel_size` can be used to resize the image by relative size. For example, setting `rel_size = 50` to an image of width 1280 x 720, the new image will have a size of 640 x 360. This is useful to speed up the time of analysis such as those computed with `count_objects` and `symptomatic_area()`.
+
+```{r manipulate1}
+image_dimension(soy)
+soy_resized <- image_resize(soy, rel_size = 50)
+image_dimension(soy_resized)
+```
+
+### Auto crop
+Cropping images is useful to remove noises from image edge, as well as to reduce the size of images before processing. `pliman` provides auto-cropping of images with `image_autocrop()`. 
+
+```{r manipulate2, fig.width=20}
+soy_crop <- image_autocrop(soy)
+soy_crop2 <- image_autocrop(soy, edge = 30) # add 30 pixels around objects' area
+image_combine(soy, soy_crop, soy_crop2, ncol = 3)
+```
+
+
+### Rotate an image
+`image_rotate()` is used to rotates the image clockwise by the given angle.
+
+```{r manipulate3 }
+soy_rotated <- image_rotate(soy, angle = 45)
+image_show(soy_rotated)
+```
+
+
+### Horizontal and vertical reflection
+`image_hreflect()` and `image_vreflect()` performs vertical and horizontal reflection of images, respectively.
+
+```{r manipulate4, fig.width=20}
+soy_hrefl <- image_hreflect(soy)
+soy_vrefl <- image_vreflect(soy)
+image_combine(soy, soy_hrefl, soy_vrefl, ncol = 3)
+```
+
+
+
+### Horizontal and vertical conversion
+`image_horizontal()` and `image_vertical()` converts (if needed) an image to a horizontal or vertical image, respectively.
+
+```{r manipulate5, fig.width=20}
+soy_h <- image_horizontal(soy)
+soy_v <- image_vertical(soy)
+image_combine(soy, soy_h, soy_v, ncol = 3)
+
+```
+
+
+### Filter, blur, and contrast
+
+```{ manipulate5,r fig.width=10, fig.height=10}
+soy_filter <- image_filter(soy)
+soy_blur <- image_blur(soy)
+soy_contrast <- image_contrast(soy)
+image_combine(soy, soy_filter, soy_blur, soy_contrast)
+```
+
+
+
+### Exporting images
+To export images to the current directory, use the function `image_export()`.
+
+```{r export}
+image_export(soy, "soy_exported.jpg")
+```
+
+### Combining functions
+pliman offers the possibility of combining functions with the new R base forward pipe operator `|>`. In this example, I will show how it is possible to 
+
+```{r combiningfunct, fig.width=10, fig.height=5}
+library(pliman)
+setwd("data") # temporary directory
+a <- image_import(img_pattern = "soy_grains")
+image_combine(a)
+
+# reduce resolution, autocrop, vertical rotation,
+# create a binary image, export
+a |>
+  image_resize(rel_size = 50) |>
+  image_autocrop() |>
+  image_vertical() |>
+  image_binary(index = "NB", show_image = FALSE) |>
+  image_combine()
+```
+
+
+
+# Image segmentation
+
+In `pliman` the following functions can be used to segment an image.
+
+* `image_binary()` to produce a binary (black and white) image
+* `image_segment()` to produce a segmented image (image objects and a white background).
+
+Both functions segment the image based on the value of some image index, which may be one of the RGB bands or any operation with these bands. Internally, these functions call `image_index()` to compute these indexes. 
+
+Here, we use the argument `index"` to test the segmentation based on the RGB and their normalized values. Users can also provide your index with the argument `my_index`.
+
+```{r segmentation1 }
+
+soy <- image_import("data/segmentation/soybean_touch.jpg")
+image_show(soy)
+
+
+```
+
+```{r segmentation2, fig.width=10, fig.height=5}
+# Compute the indexes
+indexes <- image_index(soy, index = c("R, G, B, NR, NG, NB"))
+
+# Create a histogram with the RGB values
+plot(indexes)
+```
+
+In this example, we can see the distribution of the RGB values (first row) and the normalized RGB values (second row). The two peaks represent the grains (smaller peak) and the blue background (larger peak). The clearer the difference between these peaks, the better will the image segmentation.
+
+The function `image_segmentation()` is used to segment images using image indexes. In our example, we will use the same indexes computed below to see how the image is segmented. The output of this function can be used as input in the function `count_objets()`.
+
+```{r segmentation3, fig.width=10, fig.height=5}
+segmented <- image_segment(soy, index = c("R, G, B, NR, NG, NB"))
+
+```
+
+It seems that the "NB" index provided better segmentation. "R" and "NR" resulted in an inverted segmented image, i.e., the grains were considered as background and the remaining as 'selected' image. To circumvent this problem, we can use the argument `invert` in those functions.
+
+```{r segmentation4, fig.width=10, fig.height=5}
+image_segment(soy,
+              index = c("R, NR"),
+              invert = TRUE)
+
+```
+
+
+# Producing a binary image
+
+We can also produce a binary image with `image_binary()`. Just for curiosity, we will use the indexes `"R"` and `"NB"`. By default, `image_binary()` rescales the image to 30% of the size of the original image to speed up the computation time. Use the argument `resize = FALSE` to produce a binary image with the original size.
+
+```{r binary1, fig.width=10, fig.height=5}
+binary <- image_binary(soy, index = c("R, NB"))
+
+# original image size
+image_binary(soy,
+             index = c("R, NB"),
+             resize = FALSE)
+```
+
+
+# Leaf area
+## Leaf area using leaf_area()
+
+In this example, an image with five tree leaves and a yellow template with a know area of 4 cm$^2$ is used.
+
+```{r leaf1}
+img <- image_import("data/leaf_area/la_pattern.JPG")
+leaf <- image_import("data/leaf_area/la_leaf.jpg")
+tmpl <- image_import("data/leaf_area/la_temp.jpg")
+background <- image_import("data/leaf_area/la_back.jpg")
+
+# Combine the images
+image_combine(img, leaf, tmpl, background)
+```
+
+
+
+To compute the leaf area in the image, the following function is used. Then, `get_measures()` is used to get the values given in the scale of `area_template` argument. The other measures (namely, perimeter, radius_mean, radius_min, and radius_max) are given as pixels.
+
+```{r leaf2}
+area <- 
+leaf_area(img = img,
+          img_leaf = leaf,
+          img_template = tmpl,
+          img_background = background,
+          area_template = 4,
+          text_col = "white")
+
+# Get leaf measures
+get_measures(area)
+
+```
+
+
+## Leaf area using count_objects()
+
+An alternative way to compute leaf area in `pliman` is by using `count_objects()`. This function has the advantage of using image segmentation based on several indexes (e.g., red, green, and blue values). So, sample palettes don't need to be informed. Let us compute the leaf area of `leaves` with this approach. First, we use `image_segmentation()` to identify candidate indexes to segment the image.
+
+```{r leaf3 }
+leaves <- image_import("data/leaf_area/la_leaves.JPG")
+image_show(leaves)
+
+```
+
+```{r leaf4, fig.width=8, fig.height=8}
+image_segment(leaves, index = "all")
+```
+
+`G` (Green) and `NB` (Normalized Blue) are two possible candidates to segment the leaves from the background. We will use the `NB` index here (default option in `count_objects()`). The measurement of the leaf area in this approach is given with the following two steps.
+
+1. Count the number of objects (leaves in this case)
+
+Here, we need to combine `count_objects()` and `plot_measures()` to obtain the identification of each leaf, allowing the further adjustment of the leaf area.
+
+```{r leaf5}
+count <- count_objects(leaves)
+plot_measures(count)
+```
+
+
+2. Adjust the leaf area by the area of the known object
+
+The function `get_measures()` is used to adjust the leaf area using the object 6.
+
+```{r leaf6}
+area <- 
+get_measures(count,
+             id = 6,
+             area ~ 4)
+area
+# plot the area to the segmented image
+image_segment(leaves, index = "NB", verbose = FALSE)
+plot_measures(area, measure = "area")
+
+# compute the difference between the two methods
+142.9 -(sum(area$area) - 4)
+```
+
+
+The weakness of computing leaf area with `count_objects()` is that it is needed to first obtain the object identification to know which object (leaf) is the sample with a known area. This object id may change from image to image, especially from images with a different number of leaves. Thus, batch computing is difficult in this case.
+
+
+
+# Disease severity
+## Single images
+
+```{r disease1, fig.width=12, fig.height=3}
+# temporary directory
+setwd("data/disease_severity/soybean")
+
+# import images
+img <- image_import("sev_leaf.jpg")
+healthy <- image_import("sev_healthy.jpg")
+symptoms <- image_import("sev_sympt.jpg")
+background <- image_import("sev_back.jpg")
+image_combine(img, healthy, symptoms, background, ncol = 4)
+
+```
+
+```{r disease2}
+symptomatic_area(img = img,
+                 img_healthy = healthy,
+                 img_symptoms = symptoms,
+                 img_background = background,
+                 show_image = TRUE)
+
+```
+
+
+
+# Batch processing
+## leaf images
+
+```{r batch1, fig.width=10, fig.height=20}
+# temporary directory
+setwd("data/disease_severity/soybean_rust")
+soy_leaves <- image_import(img_pattern = "1")
+image_combine(soy_leaves, ncol = 5)
+
+
+
+
+```
+
+
+## Severity measurement
+
+
+```{r batch2}
+system.time(
+soy_rust <-
+  symptomatic_area(img_pattern = "1",
+                   img_symptoms = "soy_rust",
+                   img_healthy = "soy_leaf",
+                   img_background = "soy_bg",
+                   dir_original = "data/disease_severity/soybean_rust",
+                   dir_processed = "data/disease_severity/soybean_rust/processed",
+                   save_image = TRUE,
+                   show_image = FALSE,
+                   parallel = TRUE)
+)
+soy_rust
+```
+
+
+## Processed images
+
+```{r batch3, fig.width=10, fig.height=20}
+# temporary directory
+setwd("data/disease_severity/soybean_rust/processed")
+soy_leaves <- image_import(img_pattern = "proc")
+image_combine(soy_leaves, ncol = 5)
+
+
+
+
+```
+
+
+
+
+

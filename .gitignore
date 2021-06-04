@@ -1,0 +1,11 @@
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+code_cache
+code_files
+
+main_document.docx
+*.pptx
+data/disease_severity/soybean_rust/soy_severity.R
+.RDataTmp

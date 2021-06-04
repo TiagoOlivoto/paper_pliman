@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+
+
+<title>Analysis</title>
+
+<script src="site_libs/header-attrs-2.8/header-attrs.js"></script>
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/paper.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<script src="site_libs/navigation-1.1/codefolding.js"></script>
+<script src="site_libs/navigation-1.1/sourceembed.js"></script>
+<link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<link href="site_libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet" />
+<script src="site_libs/pagedtable-1.1/js/pagedtable.js"></script>
+<link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet" />
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+<style type="text/css">
+#rmd-source-code {
+  display: none;
+}
+</style>
+
+
+<link rel="stylesheet" href="my-style.css" type="text/css" />
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.tab('show');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+</style>
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">Supporting material for pliman's paper</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">
+    <span class="fa fa fa fa-home"></span>
+     
+    About
+  </a>
+</li>
+<li>
+  <a href="code.html">
+    <span class="fa fa fa fa-file-code-o"></span>
+     
+    Analysis
+  </a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+  <a href="https://github.com/AlvesKS/potato_early_blight_biocontrol_clonostachys">
+    <span class="fas fa-github-square"></span>
+     
+    Source
+  </a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+<div class="btn-group pull-right float-right">
+<button type="button" class="btn btn-default btn-xs btn-secondary btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
+<ul class="dropdown-menu dropdown-menu-right" style="min-width: 50px;">
+<li><a id="rmd-download-source" href="#">Download Rmd</a></li>
+</ul>
+</div>
+
+
+
+<h1 class="title toc-ignore">Analysis</h1>
+
+</div>
+
+
+<div id="packages" class="section level1">
+<h1>Packages</h1>
+<pre class="r"><code>library(tidyverse) # data manipulation and plots
+library(pliman) # plant image analysis
+library() # concordance correlation coefficient</code></pre>
+</div>
+<div id="installing-pliman" class="section level1">
+<h1>Installing pliman</h1>
+<p>To install the released version of <code>pliman</code> from CRAN type:</p>
+<pre class="r"><code>install.packages(&quot;pliman&quot;)</code></pre>
+<p>The latest development version of <code>pliman</code> can be installed from the GitHub repository. The installation process requires the <code>devtools</code> package, which needs to be installed first. If you are a Windows user, you should also first download and install the latest version of <a href="https://cran.r-project.org/bin/windows/Rtools/">Rtools</a>.</p>
+<pre class="r"><code>if(!require(devtools)) install.packages(&quot;devtools&quot;)</code></pre>
+<p>After <code>devtools</code> properly installed, you can install <code>pliman</code> by running the following code. Please, note that the installation will also download the dependencies required to run the package.</p>
+<pre class="r"><code>devtools::install_github(&quot;TiagoOlivoto/pliman&quot;)</code></pre>
+<p>Them, load <code>pliman</code> by running</p>
+<pre class="r"><code>library(pliman)</code></pre>
+</div>
+<div id="image-manipulation" class="section level1">
+<h1>Image manipulation</h1>
+<div id="importing-images" class="section level2">
+<h2>Importing images</h2>
+<pre class="r"><code>library(pliman)
+soy &lt;- image_import(&quot;data/soy_grains.jpg&quot;)
+soy2 &lt;- image_import(&quot;data/soy_grains_2.jpg&quot;)</code></pre>
+<p>To import a list of images, the argument <code>img_pattern</code> of the function <code>image_import()</code> is used. All images that matches the pattern name are imported into a list.</p>
+<pre class="r"><code># set a temporary working directory
+setwd(&quot;data&quot;)
+soy_list &lt;- image_import(img_pattern = &quot;soy_&quot;)
+names(soy_list)</code></pre>
+<pre><code>[1] &quot;soy_exported.jpg&quot; &quot;soy_grains.jpg&quot;   &quot;soy_grains_2.jpg&quot;</code></pre>
+</div>
+<div id="displaying-images" class="section level2">
+<h2>Displaying images</h2>
+<p>Single images are displayed with <code>image_show()</code>. For combining images, the function <code>image_combine()</code> is used. Users can inform either a comma-separated list of objects or list of objects of class <code>Image</code>.</p>
+<pre class="r"><code># Single images
+image_show(soy)
+
+# Combine images
+image_combine(soy, soy2)</code></pre>
+<p><img src="code_files/figure-html/display1-1.png" width="1152" /></p>
+<pre class="r"><code># Combine images
+image_combine(soy_list)</code></pre>
+<p><img src="code_files/figure-html/display1-2.png" width="1152" /></p>
+</div>
+<div id="manipulating-images" class="section level2">
+<h2>Manipulating images</h2>
+<p><code>pliman</code> provides useful functions to perform image transformation of unique images or list of images based on the <a href="https://www.bioconductor.org/packages/release/bioc/vignettes/EBImage/inst/doc/EBImage-introduction.html">EBImage package</a>. All the functions shown here works natturaly either with a single image or a list of images.</p>
+<div id="rezise-an-image" class="section level3">
+<h3>Rezise an image</h3>
+<p><code>image_resize()</code> is used to resize an image. The argument <code>rel_size</code> can be used to resize the image by relative size. For example, setting <code>rel_size = 50</code> to an image of width 1280 x 720, the new image will have a size of 640 x 360. This is useful to speed up the time of analysis such as those computed with <code>count_objects</code> and <code>symptomatic_area()</code>.</p>
+<pre class="r"><code>image_dimension(soy)</code></pre>
+<pre><code>
+----------------------
+Image dimension
+----------------------
+Width :  1834 
+Height:  1305 </code></pre>
+<pre class="r"><code>soy_resized &lt;- image_resize(soy, rel_size = 50)
+image_dimension(soy_resized)</code></pre>
+<pre><code>
+----------------------
+Image dimension
+----------------------
+Width :  917 
+Height:  652 </code></pre>
+</div>
+<div id="auto-crop" class="section level3">
+<h3>Auto crop</h3>
+<p>Cropping images is useful to remove noises from image edge, as well as to reduce the size of images before processing. <code>pliman</code> provides auto-cropping of images with <code>image_autocrop()</code>.</p>
+<pre class="r"><code>soy_crop &lt;- image_autocrop(soy)
+soy_crop2 &lt;- image_autocrop(soy, edge = 30) # add 30 pixels around objects&#39; area
+image_combine(soy, soy_crop, soy_crop2, ncol = 3)</code></pre>
+<p><img src="code_files/figure-html/manipulate2-1.png" width="1920" /></p>
+</div>
+<div id="rotate-an-image" class="section level3">
+<h3>Rotate an image</h3>
+<p><code>image_rotate()</code> is used to rotates the image clockwise by the given angle.</p>
+<pre class="r"><code>soy_rotated &lt;- image_rotate(soy, angle = 45)
+image_show(soy_rotated)</code></pre>
+<p><img src="code_files/figure-html/manipulate3-1.png" width="672" /></p>
+</div>
+<div id="horizontal-and-vertical-reflection" class="section level3">
+<h3>Horizontal and vertical reflection</h3>
+<p><code>image_hreflect()</code> and <code>image_vreflect()</code> performs vertical and horizontal reflection of images, respectively.</p>
+<pre class="r"><code>soy_hrefl &lt;- image_hreflect(soy)
+soy_vrefl &lt;- image_vreflect(soy)
+image_combine(soy, soy_hrefl, soy_vrefl, ncol = 3)</code></pre>
+<p><img src="code_files/figure-html/manipulate4-1.png" width="1920" /></p>
+</div>
+<div id="horizontal-and-vertical-conversion" class="section level3">
+<h3>Horizontal and vertical conversion</h3>
+<p><code>image_horizontal()</code> and <code>image_vertical()</code> converts (if needed) an image to a horizontal or vertical image, respectively.</p>
+<pre class="r"><code>soy_h &lt;- image_horizontal(soy)
+soy_v &lt;- image_vertical(soy)
+image_combine(soy, soy_h, soy_v, ncol = 3)</code></pre>
+<p><img src="code_files/figure-html/manipulate5-1.png" width="1920" /></p>
+</div>
+<div id="filter-blur-and-contrast" class="section level3">
+<h3>Filter, blur, and contrast</h3>
+<p><code>{ manipulate5,r fig.width=10, fig.height=10} soy_filter &lt;- image_filter(soy) soy_blur &lt;- image_blur(soy) soy_contrast &lt;- image_contrast(soy) image_combine(soy, soy_filter, soy_blur, soy_contrast)</code></p>
+</div>
+<div id="exporting-images" class="section level3">
+<h3>Exporting images</h3>
+<p>To export images to the current directory, use the function <code>image_export()</code>.</p>
+<pre class="r"><code>image_export(soy, &quot;soy_exported.jpg&quot;)</code></pre>
+</div>
+<div id="combining-functions" class="section level3">
+<h3>Combining functions</h3>
+<p>pliman offers the possibility of combining functions with the new R base forward pipe operator <code>|&gt;</code>. In this example, I will show how it is possible to</p>
+<pre class="r"><code>library(pliman)
+setwd(&quot;data&quot;) # temporary directory
+a &lt;- image_import(img_pattern = &quot;soy_grains&quot;)
+image_combine(a)</code></pre>
+<p><img src="code_files/figure-html/combiningfunct-1.png" width="960" /></p>
+<pre class="r"><code># reduce resolution, autocrop, vertical rotation,
+# create a binary image, export
+a |&gt;
+  image_resize(rel_size = 50) |&gt;
+  image_autocrop() |&gt;
+  image_vertical() |&gt;
+  image_binary(index = &quot;NB&quot;, show_image = FALSE) |&gt;
+  image_combine()</code></pre>
+<p><img src="code_files/figure-html/combiningfunct-2.png" width="960" /></p>
+</div>
+</div>
+</div>
+<div id="image-segmentation" class="section level1">
+<h1>Image segmentation</h1>
+<p>In <code>pliman</code> the following functions can be used to segment an image.</p>
+<ul>
+<li><code>image_binary()</code> to produce a binary (black and white) image</li>
+<li><code>image_segment()</code> to produce a segmented image (image objects and a white background).</li>
+</ul>
+<p>Both functions segment the image based on the value of some image index, which may be one of the RGB bands or any operation with these bands. Internally, these functions call <code>image_index()</code> to compute these indexes.</p>
+<p>Here, we use the argument <code>index"</code> to test the segmentation based on the RGB and their normalized values. Users can also provide your index with the argument <code>my_index</code>.</p>
+<pre class="r"><code>soy &lt;- image_import(&quot;data/segmentation/soybean_touch.jpg&quot;)
+image_show(soy)</code></pre>
+<p><img src="code_files/figure-html/segmentation1-1.png" width="672" /></p>
+<pre class="r"><code># Compute the indexes
+indexes &lt;- image_index(soy, index = c(&quot;R, G, B, NR, NG, NB&quot;))</code></pre>
+<p><img src="code_files/figure-html/segmentation2-1.png" width="960" /></p>
+<pre class="r"><code># Create a histogram with the RGB values
+plot(indexes)</code></pre>
+<p><img src="code_files/figure-html/segmentation2-2.png" width="960" /></p>
+<p>In this example, we can see the distribution of the RGB values (first row) and the normalized RGB values (second row). The two peaks represent the grains (smaller peak) and the blue background (larger peak). The clearer the difference between these peaks, the better will the image segmentation.</p>
+<p>The function <code>image_segmentation()</code> is used to segment images using image indexes. In our example, we will use the same indexes computed below to see how the image is segmented. The output of this function can be used as input in the function <code>count_objets()</code>.</p>
+<pre class="r"><code>segmented &lt;- image_segment(soy, index = c(&quot;R, G, B, NR, NG, NB&quot;))</code></pre>
+<p><img src="code_files/figure-html/segmentation3-1.png" width="960" /></p>
+<p>It seems that the “NB” index provided better segmentation. “R” and “NR” resulted in an inverted segmented image, i.e., the grains were considered as background and the remaining as ‘selected’ image. To circumvent this problem, we can use the argument <code>invert</code> in those functions.</p>
+<pre class="r"><code>image_segment(soy,
+              index = c(&quot;R, NR&quot;),
+              invert = TRUE)</code></pre>
+<p><img src="code_files/figure-html/segmentation4-1.png" width="960" /></p>
+</div>
+<div id="producing-a-binary-image" class="section level1">
+<h1>Producing a binary image</h1>
+<p>We can also produce a binary image with <code>image_binary()</code>. Just for curiosity, we will use the indexes <code>"R"</code> and <code>"NB"</code>. By default, <code>image_binary()</code> rescales the image to 30% of the size of the original image to speed up the computation time. Use the argument <code>resize = FALSE</code> to produce a binary image with the original size.</p>
+<pre class="r"><code>binary &lt;- image_binary(soy, index = c(&quot;R, NB&quot;))</code></pre>
+<p><img src="code_files/figure-html/binary1-1.png" width="960" /></p>
+<pre class="r"><code># original image size
+image_binary(soy,
+             index = c(&quot;R, NB&quot;),
+             resize = FALSE)</code></pre>
+<p><img src="code_files/figure-html/binary1-2.png" width="960" /></p>
+</div>
+<div id="leaf-area" class="section level1">
+<h1>Leaf area</h1>
+<div id="leaf-area-using-leaf_area" class="section level2">
+<h2>Leaf area using leaf_area()</h2>
+<p>In this example, an image with five tree leaves and a yellow template with a know area of 4 cm<span class="math inline">\(^2\)</span> is used.</p>
+<pre class="r"><code>img &lt;- image_import(&quot;data/leaf_area/la_pattern.JPG&quot;)
+leaf &lt;- image_import(&quot;data/leaf_area/la_leaf.jpg&quot;)
+tmpl &lt;- image_import(&quot;data/leaf_area/la_temp.jpg&quot;)
+background &lt;- image_import(&quot;data/leaf_area/la_back.jpg&quot;)
+
+# Combine the images
+image_combine(img, leaf, tmpl, background)</code></pre>
+<p><img src="code_files/figure-html/leaf1-1.png" width="672" /></p>
+<p>To compute the leaf area in the image, the following function is used. Then, <code>get_measures()</code> is used to get the values given in the scale of <code>area_template</code> argument. The other measures (namely, perimeter, radius_mean, radius_min, and radius_max) are given as pixels.</p>
+<pre class="r"><code>area &lt;- 
+leaf_area(img = img,
+          img_leaf = leaf,
+          img_template = tmpl,
+          img_background = background,
+          area_template = 4,
+          text_col = &quot;white&quot;)</code></pre>
+<p><img src="code_files/figure-html/leaf2-1.png" width="672" /></p>
+<pre class="r"><code># Get leaf measures
+get_measures(area)</code></pre>
+<pre><code>-----------------------------------------
+Total leaf area  : 141.848 
+Average leaf area: 23.641 
+-----------------------------------------</code></pre>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["id"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["x"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["y"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["area"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["perimeter"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["radius_mean"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["radius_min"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["radius_max"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["radius_sd"],"name":[9],"type":["dbl"],"align":["right"]},{"label":["radius_ratio"],"name":[10],"type":["dbl"],"align":["right"]}],"data":[{"1":"1","2":"510.890","3":"194.810","4":"33.413","5":"750","6":"130.965","7":"113.070","8":"174.715","9":"15.314","10":"1.545","_rn_":"1"},{"1":"2","2":"206.718","3":"201.333","4":"26.851","5":"709","6":"119.427","7":"93.036","8":"170.340","9":"19.257","10":"1.831","_rn_":"2"},{"1":"3","2":"123.395","3":"557.347","4":"30.453","5":"787","6":"128.732","7":"95.721","8":"189.299","9":"24.558","10":"1.978","_rn_":"3"},{"1":"4","2":"623.013","3":"585.416","4":"39.086","5":"860","6":"143.354","7":"108.139","8":"203.003","9":"25.148","10":"1.877","_rn_":"4"},{"1":"5","2":"364.743","3":"508.610","4":"8.045","5":"375","6":"64.368","7":"51.689","8":"86.539","9":"9.693","10":"1.674","_rn_":"5"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+<div id="leaf-area-using-count_objects" class="section level2">
+<h2>Leaf area using count_objects()</h2>
+<p>An alternative way to compute leaf area in <code>pliman</code> is by using <code>count_objects()</code>. This function has the advantage of using image segmentation based on several indexes (e.g., red, green, and blue values). So, sample palettes don’t need to be informed. Let us compute the leaf area of <code>leaves</code> with this approach. First, we use <code>image_segmentation()</code> to identify candidate indexes to segment the image.</p>
+<pre class="r"><code>leaves &lt;- image_import(&quot;data/leaf_area/la_leaves.JPG&quot;)
+image_show(leaves)</code></pre>
+<p><img src="code_files/figure-html/leaf3-1.png" width="672" /></p>
+<pre class="r"><code>image_segment(leaves, index = &quot;all&quot;)</code></pre>
+<p><img src="code_files/figure-html/leaf4-1.png" width="768" /></p>
+<p><code>G</code> (Green) and <code>NB</code> (Normalized Blue) are two possible candidates to segment the leaves from the background. We will use the <code>NB</code> index here (default option in <code>count_objects()</code>). The measurement of the leaf area in this approach is given with the following two steps.</p>
+<ol style="list-style-type: decimal">
+<li>Count the number of objects (leaves in this case)</li>
+</ol>
+<p>Here, we need to combine <code>count_objects()</code> and <code>plot_measures()</code> to obtain the identification of each leaf, allowing the further adjustment of the leaf area.</p>
+<pre class="r"><code>count &lt;- count_objects(leaves)</code></pre>
+<pre><code>
+--------------------------------------------
+Number of objects: 6 
+--------------------------------------------
+ statistics      area perimeter
+        min   4332.00  253.0000
+       mean  26704.17  533.5000
+        max  44763.00  727.0000
+         sd  16286.76  197.2265
+        sum 160225.00 3201.0000</code></pre>
+<pre class="r"><code>plot_measures(count)</code></pre>
+<p><img src="code_files/figure-html/leaf5-1.png" width="672" /></p>
+<ol start="2" style="list-style-type: decimal">
+<li>Adjust the leaf area by the area of the known object</li>
+</ol>
+<p>The function <code>get_measures()</code> is used to adjust the leaf area using the object 6.</p>
+<pre class="r"><code>area &lt;- 
+get_measures(count,
+             id = 6,
+             area ~ 4)</code></pre>
+<pre><code>-----------------------------------------
+measures corrected with:
+object id: 6
+area     : 4
+-----------------------------------------
+Total    : 147.946 
+Average  : 24.658 
+-----------------------------------------</code></pre>
+<pre class="r"><code>area</code></pre>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["id"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["x"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["y"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["area"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["perimeter"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["radius_mean"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["radius_min"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["radius_max"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["radius_sd"],"name":[9],"type":["dbl"],"align":["right"]},{"label":["radius_ratio"],"name":[10],"type":["dbl"],"align":["right"]}],"data":[{"1":"1","2":"537.383","3":"498.991","4":"41.332","5":"22.091","6":"3.678","7":"2.756","8":"5.259","9":"21.470","10":"1.908","_rn_":"1"},{"1":"2","2":"438.651","3":"165.238","4":"35.363","5":"19.478","6":"3.371","7":"2.875","8":"4.547","9":"13.686","10":"1.582","_rn_":"2"},{"1":"3","2":"110.879","3":"477.028","4":"31.269","5":"20.116","6":"3.269","7":"2.375","8":"4.857","9":"21.497","10":"2.045","_rn_":"3"},{"1":"4","2":"178.420","3":"174.235","4":"27.446","5":"18.202","6":"3.027","7":"2.307","8":"4.395","9":"17.013","10":"1.904","_rn_":"4"},{"1":"5","2":"315.236","3":"434.611","4":"8.536","5":"9.693","6":"1.656","7":"1.312","8":"2.253","9":"8.583","10":"1.718","_rn_":"5"},{"1":"6","2":"313.491","3":"655.205","4":"4.000","5":"7.688","6":"1.125","7":"0.926","8":"1.379","9":"3.958","10":"1.488","_rn_":"6"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+<pre class="r"><code># plot the area to the segmented image
+image_segment(leaves, index = &quot;NB&quot;, verbose = FALSE)
+plot_measures(area, measure = &quot;area&quot;)</code></pre>
+<p><img src="code_files/figure-html/leaf6-1.png" width="672" /></p>
+<pre class="r"><code># compute the difference between the two methods
+142.9 -(sum(area$area) - 4)</code></pre>
+<pre><code>[1] -1.046</code></pre>
+<p>The weakness of computing leaf area with <code>count_objects()</code> is that it is needed to first obtain the object identification to know which object (leaf) is the sample with a known area. This object id may change from image to image, especially from images with a different number of leaves. Thus, batch computing is difficult in this case.</p>
+</div>
+</div>
+<div id="disease-severity" class="section level1">
+<h1>Disease severity</h1>
+<div id="single-images" class="section level2">
+<h2>Single images</h2>
+<pre class="r"><code># temporary directory
+setwd(&quot;data/disease_severity/soybean&quot;)
+
+# import images
+img &lt;- image_import(&quot;sev_leaf.jpg&quot;)
+healthy &lt;- image_import(&quot;sev_healthy.jpg&quot;)
+symptoms &lt;- image_import(&quot;sev_sympt.jpg&quot;)
+background &lt;- image_import(&quot;sev_back.jpg&quot;)
+image_combine(img, healthy, symptoms, background, ncol = 4)</code></pre>
+<p><img src="code_files/figure-html/disease1-1.png" width="1152" /></p>
+<pre class="r"><code>symptomatic_area(img = img,
+                 img_healthy = healthy,
+                 img_symptoms = symptoms,
+                 img_background = background,
+                 show_image = TRUE)</code></pre>
+<img src="code_files/figure-html/disease2-1.png" width="672" />
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":["healthy"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["symptomatic"],"name":[2],"type":["dbl"],"align":["right"]}],"data":[{"1":"89.00986","2":"10.99014"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+</div>
+<div id="batch-processing" class="section level1">
+<h1>Batch processing</h1>
+<div id="leaf-images" class="section level2">
+<h2>leaf images</h2>
+<pre class="r"><code># temporary directory
+setwd(&quot;data/disease_severity/soybean_rust&quot;)
+soy_leaves &lt;- image_import(img_pattern = &quot;1&quot;)
+image_combine(soy_leaves, ncol = 5)</code></pre>
+<p><img src="code_files/figure-html/batch1-1.png" width="960" /></p>
+</div>
+<div id="severity-measurement" class="section level2">
+<h2>Severity measurement</h2>
+<pre class="r"><code>system.time(
+soy_rust &lt;-
+  symptomatic_area(img_pattern = &quot;1&quot;,
+                   img_symptoms = &quot;soy_rust&quot;,
+                   img_healthy = &quot;soy_leaf&quot;,
+                   img_background = &quot;soy_bg&quot;,
+                   dir_original = &quot;data/disease_severity/soybean_rust&quot;,
+                   dir_processed = &quot;data/disease_severity/soybean_rust/processed&quot;,
+                   save_image = TRUE,
+                   show_image = FALSE,
+                   parallel = TRUE)
+)</code></pre>
+<pre><code>Image processing using multiple sessions (10). Please wait.</code></pre>
+<pre><code>  usuário   sistema decorrido 
+     0.13      0.02     38.16 </code></pre>
+<pre class="r"><code>soy_rust</code></pre>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":["sample"],"name":[1],"type":["chr"],"align":["left"]},{"label":["healthy"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["symptomatic"],"name":[3],"type":["dbl"],"align":["right"]}],"data":[{"1":"1","2":"92.66998","3":"7.3300159"},{"1":"10","2":"85.29359","3":"14.7064150"},{"1":"11","2":"16.76347","3":"83.2365298"},{"1":"12","2":"66.03467","3":"33.9653348"},{"1":"13","2":"77.68124","3":"22.3187649"},{"1":"14","2":"64.19429","3":"35.8057121"},{"1":"15","2":"59.62285","3":"40.3771467"},{"1":"16","2":"43.25413","3":"56.7458690"},{"1":"17","2":"79.01605","3":"20.9839455"},{"1":"18","2":"52.99800","3":"47.0020001"},{"1":"19","2":"88.18790","3":"11.8120971"},{"1":"2","2":"63.50238","3":"36.4976247"},{"1":"20","2":"52.05507","3":"47.9449257"},{"1":"21","2":"99.73013","3":"0.2698711"},{"1":"22","2":"71.93229","3":"28.0677119"},{"1":"23","2":"30.63813","3":"69.3618718"},{"1":"24","2":"19.45261","3":"80.5473924"},{"1":"25","2":"82.13571","3":"17.8642862"},{"1":"26","2":"40.33411","3":"59.6658938"},{"1":"27","2":"34.85315","3":"65.1468456"},{"1":"28","2":"34.21819","3":"65.7818063"},{"1":"29","2":"74.45958","3":"25.5404194"},{"1":"3","2":"59.85392","3":"40.1460798"},{"1":"30","2":"73.77454","3":"26.2254557"},{"1":"31","2":"10.46188","3":"89.5381179"},{"1":"32","2":"27.34956","3":"72.6504385"},{"1":"33","2":"31.23313","3":"68.7668676"},{"1":"34","2":"52.55974","3":"47.4402627"},{"1":"35","2":"23.05744","3":"76.9425621"},{"1":"36","2":"42.84528","3":"57.1547233"},{"1":"37","2":"13.85829","3":"86.1417093"},{"1":"38","2":"46.50435","3":"53.4956460"},{"1":"39","2":"89.50751","3":"10.4924918"},{"1":"4","2":"46.65756","3":"53.3424396"},{"1":"40","2":"59.86448","3":"40.1355167"},{"1":"41","2":"94.47107","3":"5.5289293"},{"1":"42","2":"35.21508","3":"64.7849222"},{"1":"43","2":"52.69147","3":"47.3085305"},{"1":"44","2":"41.47538","3":"58.5246216"},{"1":"45","2":"66.44488","3":"33.5551213"},{"1":"46","2":"97.28590","3":"2.7141002"},{"1":"47","2":"85.44647","3":"14.5535293"},{"1":"48","2":"90.78048","3":"9.2195182"},{"1":"49","2":"58.40096","3":"41.5990407"},{"1":"5","2":"83.85025","3":"16.1497542"},{"1":"50","2":"83.44161","3":"16.5583880"},{"1":"6","2":"74.76882","3":"25.2311802"},{"1":"7","2":"76.38273","3":"23.6172710"},{"1":"8","2":"70.60126","3":"29.3987404"},{"1":"9","2":"52.30917","3":"47.6908299"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+<div id="processed-images" class="section level2">
+<h2>Processed images</h2>
+<pre class="r"><code># temporary directory
+setwd(&quot;data/disease_severity/soybean_rust/processed&quot;)
+soy_leaves &lt;- image_import(img_pattern = &quot;proc&quot;)
+image_combine(soy_leaves, ncol = 5)</code></pre>
+<p><img src="code_files/figure-html/batch3-1.png" width="960" /></p>
+</div>
+</div>
+
+<div id="rmd-source-code">JSBBbmFseXNpcyANCg0KYGBge3IgZ2xvYmFsX29wdGlvbnMsIGluY2x1ZGUgPSBGQUxTRX0NCmtuaXRyOjpvcHRzX2NodW5rJHNldChjYWNoZSA9IFRSVUUsIGNvbW1lbnQgPSAiIikNCg0KYGBgDQoNCiMgUGFja2FnZXMNCmBgYHtyIHBhY2thZ2VzfQ0KbGlicmFyeSh0aWR5dmVyc2UpICMgZGF0YSBtYW5pcHVsYXRpb24gYW5kIHBsb3RzDQpsaWJyYXJ5KHBsaW1hbikgIyBwbGFudCBpbWFnZSBhbmFseXNpcw0KbGlicmFyeSgpICMgY29uY29yZGFuY2UgY29ycmVsYXRpb24gY29lZmZpY2llbnQNCmBgYA0KDQoNCiMgSW5zdGFsbGluZyBwbGltYW4NCg0KVG8gaW5zdGFsbCB0aGUgcmVsZWFzZWQgdmVyc2lvbiBvZiBgcGxpbWFuYCBmcm9tIENSQU4gdHlwZToNCmBgYHtyIGV2YWwgPSBGQUxTRX0NCmluc3RhbGwucGFja2FnZXMoInBsaW1hbiIpDQpgYGANCg0KDQpUaGUgbGF0ZXN0IGRldmVsb3BtZW50IHZlcnNpb24gb2YgYHBsaW1hbmAgY2FuIGJlIGluc3RhbGxlZCBmcm9tIHRoZSBHaXRIdWIgcmVwb3NpdG9yeS4gVGhlIGluc3RhbGxhdGlvbiBwcm9jZXNzIHJlcXVpcmVzIHRoZSBgZGV2dG9vbHNgIHBhY2thZ2UsIHdoaWNoIG5lZWRzIHRvIGJlIGluc3RhbGxlZCBmaXJzdC4gSWYgeW91IGFyZSBhIFdpbmRvd3MgdXNlciwgeW91IHNob3VsZCBhbHNvIGZpcnN0IGRvd25sb2FkIGFuZCBpbnN0YWxsIHRoZSBsYXRlc3QgdmVyc2lvbiBvZiBbUnRvb2xzXShodHRwczovL2NyYW4uci1wcm9qZWN0Lm9yZy9iaW4vd2luZG93cy9SdG9vbHMvKS4NCg0KYGBge3IsIGV2YWw9RkFMU0V9DQppZighcmVxdWlyZShkZXZ0b29scykpIGluc3RhbGwucGFja2FnZXMoImRldnRvb2xzIikNCg0KYGBgDQoNCkFmdGVyIGBkZXZ0b29sc2AgcHJvcGVybHkgaW5zdGFsbGVkLCB5b3UgY2FuIGluc3RhbGwgYHBsaW1hbmAgYnkgcnVubmluZyB0aGUgZm9sbG93aW5nIGNvZGUuIFBsZWFzZSwgbm90ZSB0aGF0IHRoZSBpbnN0YWxsYXRpb24gd2lsbCBhbHNvIGRvd25sb2FkIHRoZSBkZXBlbmRlbmNpZXMgcmVxdWlyZWQgdG8gcnVuIHRoZSBwYWNrYWdlLg0KDQpgYGB7ciwgZXZhbD1GQUxTRX0NCmRldnRvb2xzOjppbnN0YWxsX2dpdGh1YigiVGlhZ29PbGl2b3RvL3BsaW1hbiIpDQpgYGANCg0KDQpUaGVtLCBsb2FkIGBwbGltYW5gIGJ5IHJ1bm5pbmcgDQpgYGB7ciBsb2FkLCBtZXNzYWdlPUZBTFNFLCB3YXJuaW5nPUZBTFNFfQ0KDQpsaWJyYXJ5KHBsaW1hbikNCmBgYA0KDQoNCiMgSW1hZ2UgbWFuaXB1bGF0aW9uDQoNCiMjIEltcG9ydGluZyBpbWFnZXMNCg0KYGBge3IgaW1wb3J0MSB9DQpsaWJyYXJ5KHBsaW1hbikNCnNveSA8LSBpbWFnZV9pbXBvcnQoImRhdGEvc295X2dyYWlucy5qcGciKQ0Kc295MiA8LSBpbWFnZV9pbXBvcnQoImRhdGEvc295X2dyYWluc18yLmpwZyIpDQoNCmBgYA0KDQoNClRvIGltcG9ydCBhIGxpc3Qgb2YgaW1hZ2VzLCB0aGUgYXJndW1lbnQgYGltZ19wYXR0ZXJuYCBvZiB0aGUgZnVuY3Rpb24gYGltYWdlX2ltcG9ydCgpYCBpcyB1c2VkLiBBbGwgaW1hZ2VzIHRoYXQgbWF0Y2hlcyB0aGUgcGF0dGVybiBuYW1lIGFyZSBpbXBvcnRlZCBpbnRvIGEgbGlzdC4NCg0KYGBge3IgaW1wb3J0MiB9DQojIHNldCBhIHRlbXBvcmFyeSB3b3JraW5nIGRpcmVjdG9yeQ0Kc2V0d2QoImRhdGEiKQ0Kc295X2xpc3QgPC0gaW1hZ2VfaW1wb3J0KGltZ19wYXR0ZXJuID0gInNveV8iKQ0KbmFtZXMoc295X2xpc3QpDQpgYGANCg0KDQoNCg0KIyMgRGlzcGxheWluZyBpbWFnZXMNClNpbmdsZSBpbWFnZXMgYXJlIGRpc3BsYXllZCB3aXRoIGBpbWFnZV9zaG93KClgLiBGb3IgY29tYmluaW5nIGltYWdlcywgdGhlIGZ1bmN0aW9uIGBpbWFnZV9jb21iaW5lKClgIGlzIHVzZWQuIFVzZXJzIGNhbiBpbmZvcm0gZWl0aGVyIGEgY29tbWEtc2VwYXJhdGVkIGxpc3Qgb2Ygb2JqZWN0cyBvciBsaXN0IG9mIG9iamVjdHMgb2YgY2xhc3MgYEltYWdlYC4NCg0KYGBge3IgZGlzcGxheTEsIGZpZy53aWR0aD0xMn0NCiMgU2luZ2xlIGltYWdlcw0KaW1hZ2Vfc2hvdyhzb3kpDQoNCiMgQ29tYmluZSBpbWFnZXMNCmltYWdlX2NvbWJpbmUoc295LCBzb3kyKQ0KDQojIENvbWJpbmUgaW1hZ2VzDQppbWFnZV9jb21iaW5lKHNveV9saXN0KQ0KDQoNCmBgYA0KDQoNCiMjIE1hbmlwdWxhdGluZyBpbWFnZXMNCg0KDQpgcGxpbWFuYCBwcm92aWRlcyB1c2VmdWwgZnVuY3Rpb25zIHRvIHBlcmZvcm0gaW1hZ2UgdHJhbnNmb3JtYXRpb24gb2YgdW5pcXVlIGltYWdlcyBvciBsaXN0IG9mIGltYWdlcyBiYXNlZCBvbiB0aGUgW0VCSW1hZ2UgcGFja2FnZV0oaHR0cHM6Ly93d3cuYmlvY29uZHVjdG9yLm9yZy9wYWNrYWdlcy9yZWxlYXNlL2Jpb2MvdmlnbmV0dGVzL0VCSW1hZ2UvaW5zdC9kb2MvRUJJbWFnZS1pbnRyb2R1Y3Rpb24uaHRtbCkuIEFsbCB0aGUgZnVuY3Rpb25zIHNob3duIGhlcmUgd29ya3MgbmF0dHVyYWx5IGVpdGhlciB3aXRoIGEgc2luZ2xlIGltYWdlIG9yIGEgbGlzdCBvZiBpbWFnZXMuDQoNCiMjIyBSZXppc2UgYW4gaW1hZ2UNCmBpbWFnZV9yZXNpemUoKWAgaXMgdXNlZCB0byByZXNpemUgYW4gaW1hZ2UuIFRoZSBhcmd1bWVudCBgcmVsX3NpemVgIGNhbiBiZSB1c2VkIHRvIHJlc2l6ZSB0aGUgaW1hZ2UgYnkgcmVsYXRpdmUgc2l6ZS4gRm9yIGV4YW1wbGUsIHNldHRpbmcgYHJlbF9zaXplID0gNTBgIHRvIGFuIGltYWdlIG9mIHdpZHRoIDEyODAgeCA3MjAsIHRoZSBuZXcgaW1hZ2Ugd2lsbCBoYXZlIGEgc2l6ZSBvZiA2NDAgeCAzNjAuIFRoaXMgaXMgdXNlZnVsIHRvIHNwZWVkIHVwIHRoZSB0aW1lIG9mIGFuYWx5c2lzIHN1Y2ggYXMgdGhvc2UgY29tcHV0ZWQgd2l0aCBgY291bnRfb2JqZWN0c2AgYW5kIGBzeW1wdG9tYXRpY19hcmVhKClgLg0KDQpgYGB7ciBtYW5pcHVsYXRlMX0NCmltYWdlX2RpbWVuc2lvbihzb3kpDQpzb3lfcmVzaXplZCA8LSBpbWFnZV9yZXNpemUoc295LCByZWxfc2l6ZSA9IDUwKQ0KaW1hZ2VfZGltZW5zaW9uKHNveV9yZXNpemVkKQ0KYGBgDQoNCiMjIyBBdXRvIGNyb3ANCkNyb3BwaW5nIGltYWdlcyBpcyB1c2VmdWwgdG8gcmVtb3ZlIG5vaXNlcyBmcm9tIGltYWdlIGVkZ2UsIGFzIHdlbGwgYXMgdG8gcmVkdWNlIHRoZSBzaXplIG9mIGltYWdlcyBiZWZvcmUgcHJvY2Vzc2luZy4gYHBsaW1hbmAgcHJvdmlkZXMgYXV0by1jcm9wcGluZyBvZiBpbWFnZXMgd2l0aCBgaW1hZ2VfYXV0b2Nyb3AoKWAuIA0KDQpgYGB7ciBtYW5pcHVsYXRlMiwgZmlnLndpZHRoPTIwfQ0Kc295X2Nyb3AgPC0gaW1hZ2VfYXV0b2Nyb3Aoc295KQ0Kc295X2Nyb3AyIDwtIGltYWdlX2F1dG9jcm9wKHNveSwgZWRnZSA9IDMwKSAjIGFkZCAzMCBwaXhlbHMgYXJvdW5kIG9iamVjdHMnIGFyZWENCmltYWdlX2NvbWJpbmUoc295LCBzb3lfY3JvcCwgc295X2Nyb3AyLCBuY29sID0gMykNCmBgYA0KDQoNCiMjIyBSb3RhdGUgYW4gaW1hZ2UNCmBpbWFnZV9yb3RhdGUoKWAgaXMgdXNlZCB0byByb3RhdGVzIHRoZSBpbWFnZSBjbG9ja3dpc2UgYnkgdGhlIGdpdmVuIGFuZ2xlLg0KDQpgYGB7ciBtYW5pcHVsYXRlMyB9DQpzb3lfcm90YXRlZCA8LSBpbWFnZV9yb3RhdGUoc295LCBhbmdsZSA9IDQ1KQ0KaW1hZ2Vfc2hvdyhzb3lfcm90YXRlZCkNCmBgYA0KDQoNCiMjIyBIb3Jpem9udGFsIGFuZCB2ZXJ0aWNhbCByZWZsZWN0aW9uDQpgaW1hZ2VfaHJlZmxlY3QoKWAgYW5kIGBpbWFnZV92cmVmbGVjdCgpYCBwZXJmb3JtcyB2ZXJ0aWNhbCBhbmQgaG9yaXpvbnRhbCByZWZsZWN0aW9uIG9mIGltYWdlcywgcmVzcGVjdGl2ZWx5Lg0KDQpgYGB7ciBtYW5pcHVsYXRlNCwgZmlnLndpZHRoPTIwfQ0Kc295X2hyZWZsIDwtIGltYWdlX2hyZWZsZWN0KHNveSkNCnNveV92cmVmbCA8LSBpbWFnZV92cmVmbGVjdChzb3kpDQppbWFnZV9jb21iaW5lKHNveSwgc295X2hyZWZsLCBzb3lfdnJlZmwsIG5jb2wgPSAzKQ0KYGBgDQoNCg0KDQojIyMgSG9yaXpvbnRhbCBhbmQgdmVydGljYWwgY29udmVyc2lvbg0KYGltYWdlX2hvcml6b250YWwoKWAgYW5kIGBpbWFnZV92ZXJ0aWNhbCgpYCBjb252ZXJ0cyAoaWYgbmVlZGVkKSBhbiBpbWFnZSB0byBhIGhvcml6b250YWwgb3IgdmVydGljYWwgaW1hZ2UsIHJlc3BlY3RpdmVseS4NCg0KYGBge3IgbWFuaXB1bGF0ZTUsIGZpZy53aWR0aD0yMH0NCnNveV9oIDwtIGltYWdlX2hvcml6b250YWwoc295KQ0Kc295X3YgPC0gaW1hZ2VfdmVydGljYWwoc295KQ0KaW1hZ2VfY29tYmluZShzb3ksIHNveV9oLCBzb3lfdiwgbmNvbCA9IDMpDQoNCmBgYA0KDQoNCiMjIyBGaWx0ZXIsIGJsdXIsIGFuZCBjb250cmFzdA0KDQpgYGB7IG1hbmlwdWxhdGU1LHIgZmlnLndpZHRoPTEwLCBmaWcuaGVpZ2h0PTEwfQ0Kc295X2ZpbHRlciA8LSBpbWFnZV9maWx0ZXIoc295KQ0Kc295X2JsdXIgPC0gaW1hZ2VfYmx1cihzb3kpDQpzb3lfY29udHJhc3QgPC0gaW1hZ2VfY29udHJhc3Qoc295KQ0KaW1hZ2VfY29tYmluZShzb3ksIHNveV9maWx0ZXIsIHNveV9ibHVyLCBzb3lfY29udHJhc3QpDQpgYGANCg0KDQoNCiMjIyBFeHBvcnRpbmcgaW1hZ2VzDQpUbyBleHBvcnQgaW1hZ2VzIHRvIHRoZSBjdXJyZW50IGRpcmVjdG9yeSwgdXNlIHRoZSBmdW5jdGlvbiBgaW1hZ2VfZXhwb3J0KClgLg0KDQpgYGB7ciBleHBvcnR9DQppbWFnZV9leHBvcnQoc295LCAic295X2V4cG9ydGVkLmpwZyIpDQpgYGANCg0KIyMjIENvbWJpbmluZyBmdW5jdGlvbnMNCnBsaW1hbiBvZmZlcnMgdGhlIHBvc3NpYmlsaXR5IG9mIGNvbWJpbmluZyBmdW5jdGlvbnMgd2l0aCB0aGUgbmV3IFIgYmFzZSBmb3J3YXJkIHBpcGUgb3BlcmF0b3IgYHw+YC4gSW4gdGhpcyBleGFtcGxlLCBJIHdpbGwgc2hvdyBob3cgaXQgaXMgcG9zc2libGUgdG8gDQoNCmBgYHtyIGNvbWJpbmluZ2Z1bmN0LCBmaWcud2lkdGg9MTAsIGZpZy5oZWlnaHQ9NX0NCmxpYnJhcnkocGxpbWFuKQ0Kc2V0d2QoImRhdGEiKSAjIHRlbXBvcmFyeSBkaXJlY3RvcnkNCmEgPC0gaW1hZ2VfaW1wb3J0KGltZ19wYXR0ZXJuID0gInNveV9ncmFpbnMiKQ0KaW1hZ2VfY29tYmluZShhKQ0KDQojIHJlZHVjZSByZXNvbHV0aW9uLCBhdXRvY3JvcCwgdmVydGljYWwgcm90YXRpb24sDQojIGNyZWF0ZSBhIGJpbmFyeSBpbWFnZSwgZXhwb3J0DQphIHw+DQogIGltYWdlX3Jlc2l6ZShyZWxfc2l6ZSA9IDUwKSB8Pg0KICBpbWFnZV9hdXRvY3JvcCgpIHw+DQogIGltYWdlX3ZlcnRpY2FsKCkgfD4NCiAgaW1hZ2VfYmluYXJ5KGluZGV4ID0gIk5CIiwgc2hvd19pbWFnZSA9IEZBTFNFKSB8Pg0KICBpbWFnZV9jb21iaW5lKCkNCmBgYA0KDQoNCg0KIyBJbWFnZSBzZWdtZW50YXRpb24NCg0KSW4gYHBsaW1hbmAgdGhlIGZvbGxvd2luZyBmdW5jdGlvbnMgY2FuIGJlIHVzZWQgdG8gc2VnbWVudCBhbiBpbWFnZS4NCg0KKiBgaW1hZ2VfYmluYXJ5KClgIHRvIHByb2R1Y2UgYSBiaW5hcnkgKGJsYWNrIGFuZCB3aGl0ZSkgaW1hZ2UNCiogYGltYWdlX3NlZ21lbnQoKWAgdG8gcHJvZHVjZSBhIHNlZ21lbnRlZCBpbWFnZSAoaW1hZ2Ugb2JqZWN0cyBhbmQgYSB3aGl0ZSBiYWNrZ3JvdW5kKS4NCg0KQm90aCBmdW5jdGlvbnMgc2VnbWVudCB0aGUgaW1hZ2UgYmFzZWQgb24gdGhlIHZhbHVlIG9mIHNvbWUgaW1hZ2UgaW5kZXgsIHdoaWNoIG1heSBiZSBvbmUgb2YgdGhlIFJHQiBiYW5kcyBvciBhbnkgb3BlcmF0aW9uIHdpdGggdGhlc2UgYmFuZHMuIEludGVybmFsbHksIHRoZXNlIGZ1bmN0aW9ucyBjYWxsIGBpbWFnZV9pbmRleCgpYCB0byBjb21wdXRlIHRoZXNlIGluZGV4ZXMuIA0KDQpIZXJlLCB3ZSB1c2UgdGhlIGFyZ3VtZW50IGBpbmRleCJgIHRvIHRlc3QgdGhlIHNlZ21lbnRhdGlvbiBiYXNlZCBvbiB0aGUgUkdCIGFuZCB0aGVpciBub3JtYWxpemVkIHZhbHVlcy4gVXNlcnMgY2FuIGFsc28gcHJvdmlkZSB5b3VyIGluZGV4IHdpdGggdGhlIGFyZ3VtZW50IGBteV9pbmRleGAuDQoNCmBgYHtyIHNlZ21lbnRhdGlvbjEgfQ0KDQpzb3kgPC0gaW1hZ2VfaW1wb3J0KCJkYXRhL3NlZ21lbnRhdGlvbi9zb3liZWFuX3RvdWNoLmpwZyIpDQppbWFnZV9zaG93KHNveSkNCg0KDQpgYGANCg0KYGBge3Igc2VnbWVudGF0aW9uMiwgZmlnLndpZHRoPTEwLCBmaWcuaGVpZ2h0PTV9DQojIENvbXB1dGUgdGhlIGluZGV4ZXMNCmluZGV4ZXMgPC0gaW1hZ2VfaW5kZXgoc295LCBpbmRleCA9IGMoIlIsIEcsIEIsIE5SLCBORywgTkIiKSkNCg0KIyBDcmVhdGUgYSBoaXN0b2dyYW0gd2l0aCB0aGUgUkdCIHZhbHVlcw0KcGxvdChpbmRleGVzKQ0KYGBgDQoNCkluIHRoaXMgZXhhbXBsZSwgd2UgY2FuIHNlZSB0aGUgZGlzdHJpYnV0aW9uIG9mIHRoZSBSR0IgdmFsdWVzIChmaXJzdCByb3cpIGFuZCB0aGUgbm9ybWFsaXplZCBSR0IgdmFsdWVzIChzZWNvbmQgcm93KS4gVGhlIHR3byBwZWFrcyByZXByZXNlbnQgdGhlIGdyYWlucyAoc21hbGxlciBwZWFrKSBhbmQgdGhlIGJsdWUgYmFja2dyb3VuZCAobGFyZ2VyIHBlYWspLiBUaGUgY2xlYXJlciB0aGUgZGlmZmVyZW5jZSBiZXR3ZWVuIHRoZXNlIHBlYWtzLCB0aGUgYmV0dGVyIHdpbGwgdGhlIGltYWdlIHNlZ21lbnRhdGlvbi4NCg0KVGhlIGZ1bmN0aW9uIGBpbWFnZV9zZWdtZW50YXRpb24oKWAgaXMgdXNlZCB0byBzZWdtZW50IGltYWdlcyB1c2luZyBpbWFnZSBpbmRleGVzLiBJbiBvdXIgZXhhbXBsZSwgd2Ugd2lsbCB1c2UgdGhlIHNhbWUgaW5kZXhlcyBjb21wdXRlZCBiZWxvdyB0byBzZWUgaG93IHRoZSBpbWFnZSBpcyBzZWdtZW50ZWQuIFRoZSBvdXRwdXQgb2YgdGhpcyBmdW5jdGlvbiBjYW4gYmUgdXNlZCBhcyBpbnB1dCBpbiB0aGUgZnVuY3Rpb24gYGNvdW50X29iamV0cygpYC4NCg0KYGBge3Igc2VnbWVudGF0aW9uMywgZmlnLndpZHRoPTEwLCBmaWcuaGVpZ2h0PTV9DQpzZWdtZW50ZWQgPC0gaW1hZ2Vfc2VnbWVudChzb3ksIGluZGV4ID0gYygiUiwgRywgQiwgTlIsIE5HLCBOQiIpKQ0KDQpgYGANCg0KSXQgc2VlbXMgdGhhdCB0aGUgIk5CIiBpbmRleCBwcm92aWRlZCBiZXR0ZXIgc2VnbWVudGF0aW9uLiAiUiIgYW5kICJOUiIgcmVzdWx0ZWQgaW4gYW4gaW52ZXJ0ZWQgc2VnbWVudGVkIGltYWdlLCBpLmUuLCB0aGUgZ3JhaW5zIHdlcmUgY29uc2lkZXJlZCBhcyBiYWNrZ3JvdW5kIGFuZCB0aGUgcmVtYWluaW5nIGFzICdzZWxlY3RlZCcgaW1hZ2UuIFRvIGNpcmN1bXZlbnQgdGhpcyBwcm9ibGVtLCB3ZSBjYW4gdXNlIHRoZSBhcmd1bWVudCBgaW52ZXJ0YCBpbiB0aG9zZSBmdW5jdGlvbnMuDQoNCmBgYHtyIHNlZ21lbnRhdGlvbjQsIGZpZy53aWR0aD0xMCwgZmlnLmhlaWdodD01fQ0KaW1hZ2Vfc2VnbWVudChzb3ksDQogICAgICAgICAgICAgIGluZGV4ID0gYygiUiwgTlIiKSwNCiAgICAgICAgICAgICAgaW52ZXJ0ID0gVFJVRSkNCg0KYGBgDQoNCg0KIyBQcm9kdWNpbmcgYSBiaW5hcnkgaW1hZ2UNCg0KV2UgY2FuIGFsc28gcHJvZHVjZSBhIGJpbmFyeSBpbWFnZSB3aXRoIGBpbWFnZV9iaW5hcnkoKWAuIEp1c3QgZm9yIGN1cmlvc2l0eSwgd2Ugd2lsbCB1c2UgdGhlIGluZGV4ZXMgYCJSImAgYW5kIGAiTkIiYC4gQnkgZGVmYXVsdCwgYGltYWdlX2JpbmFyeSgpYCByZXNjYWxlcyB0aGUgaW1hZ2UgdG8gMzAlIG9mIHRoZSBzaXplIG9mIHRoZSBvcmlnaW5hbCBpbWFnZSB0byBzcGVlZCB1cCB0aGUgY29tcHV0YXRpb24gdGltZS4gVXNlIHRoZSBhcmd1bWVudCBgcmVzaXplID0gRkFMU0VgIHRvIHByb2R1Y2UgYSBiaW5hcnkgaW1hZ2Ugd2l0aCB0aGUgb3JpZ2luYWwgc2l6ZS4NCg0KYGBge3IgYmluYXJ5MSwgZmlnLndpZHRoPTEwLCBmaWcuaGVpZ2h0PTV9DQpiaW5hcnkgPC0gaW1hZ2VfYmluYXJ5KHNveSwgaW5kZXggPSBjKCJSLCBOQiIpKQ0KDQojIG9yaWdpbmFsIGltYWdlIHNpemUNCmltYWdlX2JpbmFyeShzb3ksDQogICAgICAgICAgICAgaW5kZXggPSBjKCJSLCBOQiIpLA0KICAgICAgICAgICAgIHJlc2l6ZSA9IEZBTFNFKQ0KYGBgDQoNCg0KIyBMZWFmIGFyZWENCiMjIExlYWYgYXJlYSB1c2luZyBsZWFmX2FyZWEoKQ0KDQpJbiB0aGlzIGV4YW1wbGUsIGFuIGltYWdlIHdpdGggZml2ZSB0cmVlIGxlYXZlcyBhbmQgYSB5ZWxsb3cgdGVtcGxhdGUgd2l0aCBhIGtub3cgYXJlYSBvZiA0IGNtJF4yJCBpcyB1c2VkLg0KDQpgYGB7ciBsZWFmMX0NCmltZyA8LSBpbWFnZV9pbXBvcnQoImRhdGEvbGVhZl9hcmVhL2xhX3BhdHRlcm4uSlBHIikNCmxlYWYgPC0gaW1hZ2VfaW1wb3J0KCJkYXRhL2xlYWZfYXJlYS9sYV9sZWFmLmpwZyIpDQp0bXBsIDwtIGltYWdlX2ltcG9ydCgiZGF0YS9sZWFmX2FyZWEvbGFfdGVtcC5qcGciKQ0KYmFja2dyb3VuZCA8LSBpbWFnZV9pbXBvcnQoImRhdGEvbGVhZl9hcmVhL2xhX2JhY2suanBnIikNCg0KIyBDb21iaW5lIHRoZSBpbWFnZXMNCmltYWdlX2NvbWJpbmUoaW1nLCBsZWFmLCB0bXBsLCBiYWNrZ3JvdW5kKQ0KYGBgDQoNCg0KDQpUbyBjb21wdXRlIHRoZSBsZWFmIGFyZWEgaW4gdGhlIGltYWdlLCB0aGUgZm9sbG93aW5nIGZ1bmN0aW9uIGlzIHVzZWQuIFRoZW4sIGBnZXRfbWVhc3VyZXMoKWAgaXMgdXNlZCB0byBnZXQgdGhlIHZhbHVlcyBnaXZlbiBpbiB0aGUgc2NhbGUgb2YgYGFyZWFfdGVtcGxhdGVgIGFyZ3VtZW50LiBUaGUgb3RoZXIgbWVhc3VyZXMgKG5hbWVseSwgcGVyaW1ldGVyLCByYWRpdXNfbWVhbiwgcmFkaXVzX21pbiwgYW5kIHJhZGl1c19tYXgpIGFyZSBnaXZlbiBhcyBwaXhlbHMuDQoNCmBgYHtyIGxlYWYyfQ0KYXJlYSA8LSANCmxlYWZfYXJlYShpbWcgPSBpbWcsDQogICAgICAgICAgaW1nX2xlYWYgPSBsZWFmLA0KICAgICAgICAgIGltZ190ZW1wbGF0ZSA9IHRtcGwsDQogICAgICAgICAgaW1nX2JhY2tncm91bmQgPSBiYWNrZ3JvdW5kLA0KICAgICAgICAgIGFyZWFfdGVtcGxhdGUgPSA0LA0KICAgICAgICAgIHRleHRfY29sID0gIndoaXRlIikNCg0KIyBHZXQgbGVhZiBtZWFzdXJlcw0KZ2V0X21lYXN1cmVzKGFyZWEpDQoNCmBgYA0KDQoNCiMjIExlYWYgYXJlYSB1c2luZyBjb3VudF9vYmplY3RzKCkNCg0KQW4gYWx0ZXJuYXRpdmUgd2F5IHRvIGNvbXB1dGUgbGVhZiBhcmVhIGluIGBwbGltYW5gIGlzIGJ5IHVzaW5nIGBjb3VudF9vYmplY3RzKClgLiBUaGlzIGZ1bmN0aW9uIGhhcyB0aGUgYWR2YW50YWdlIG9mIHVzaW5nIGltYWdlIHNlZ21lbnRhdGlvbiBiYXNlZCBvbiBzZXZlcmFsIGluZGV4ZXMgKGUuZy4sIHJlZCwgZ3JlZW4sIGFuZCBibHVlIHZhbHVlcykuIFNvLCBzYW1wbGUgcGFsZXR0ZXMgZG9uJ3QgbmVlZCB0byBiZSBpbmZvcm1lZC4gTGV0IHVzIGNvbXB1dGUgdGhlIGxlYWYgYXJlYSBvZiBgbGVhdmVzYCB3aXRoIHRoaXMgYXBwcm9hY2guIEZpcnN0LCB3ZSB1c2UgYGltYWdlX3NlZ21lbnRhdGlvbigpYCB0byBpZGVudGlmeSBjYW5kaWRhdGUgaW5kZXhlcyB0byBzZWdtZW50IHRoZSBpbWFnZS4NCg0KYGBge3IgbGVhZjMgfQ0KbGVhdmVzIDwtIGltYWdlX2ltcG9ydCgiZGF0YS9sZWFmX2FyZWEvbGFfbGVhdmVzLkpQRyIpDQppbWFnZV9zaG93KGxlYXZlcykNCg0KYGBgDQoNCmBgYHtyIGxlYWY0LCBmaWcud2lkdGg9OCwgZmlnLmhlaWdodD04fQ0KaW1hZ2Vfc2VnbWVudChsZWF2ZXMsIGluZGV4ID0gImFsbCIpDQpgYGANCg0KYEdgIChHcmVlbikgYW5kIGBOQmAgKE5vcm1hbGl6ZWQgQmx1ZSkgYXJlIHR3byBwb3NzaWJsZSBjYW5kaWRhdGVzIHRvIHNlZ21lbnQgdGhlIGxlYXZlcyBmcm9tIHRoZSBiYWNrZ3JvdW5kLiBXZSB3aWxsIHVzZSB0aGUgYE5CYCBpbmRleCBoZXJlIChkZWZhdWx0IG9wdGlvbiBpbiBgY291bnRfb2JqZWN0cygpYCkuIFRoZSBtZWFzdXJlbWVudCBvZiB0aGUgbGVhZiBhcmVhIGluIHRoaXMgYXBwcm9hY2ggaXMgZ2l2ZW4gd2l0aCB0aGUgZm9sbG93aW5nIHR3byBzdGVwcy4NCg0KMS4gQ291bnQgdGhlIG51bWJlciBvZiBvYmplY3RzIChsZWF2ZXMgaW4gdGhpcyBjYXNlKQ0KDQpIZXJlLCB3ZSBuZWVkIHRvIGNvbWJpbmUgYGNvdW50X29iamVjdHMoKWAgYW5kIGBwbG90X21lYXN1cmVzKClgIHRvIG9idGFpbiB0aGUgaWRlbnRpZmljYXRpb24gb2YgZWFjaCBsZWFmLCBhbGxvd2luZyB0aGUgZnVydGhlciBhZGp1c3RtZW50IG9mIHRoZSBsZWFmIGFyZWEuDQoNCmBgYHtyIGxlYWY1fQ0KY291bnQgPC0gY291bnRfb2JqZWN0cyhsZWF2ZXMpDQpwbG90X21lYXN1cmVzKGNvdW50KQ0KYGBgDQoNCg0KMi4gQWRqdXN0IHRoZSBsZWFmIGFyZWEgYnkgdGhlIGFyZWEgb2YgdGhlIGtub3duIG9iamVjdA0KDQpUaGUgZnVuY3Rpb24gYGdldF9tZWFzdXJlcygpYCBpcyB1c2VkIHRvIGFkanVzdCB0aGUgbGVhZiBhcmVhIHVzaW5nIHRoZSBvYmplY3QgNi4NCg0KYGBge3IgbGVhZjZ9DQphcmVhIDwtIA0KZ2V0X21lYXN1cmVzKGNvdW50LA0KICAgICAgICAgICAgIGlkID0gNiwNCiAgICAgICAgICAgICBhcmVhIH4gNCkNCmFyZWENCiMgcGxvdCB0aGUgYXJlYSB0byB0aGUgc2VnbWVudGVkIGltYWdlDQppbWFnZV9zZWdtZW50KGxlYXZlcywgaW5kZXggPSAiTkIiLCB2ZXJib3NlID0gRkFMU0UpDQpwbG90X21lYXN1cmVzKGFyZWEsIG1lYXN1cmUgPSAiYXJlYSIpDQoNCiMgY29tcHV0ZSB0aGUgZGlmZmVyZW5jZSBiZXR3ZWVuIHRoZSB0d28gbWV0aG9kcw0KMTQyLjkgLShzdW0oYXJlYSRhcmVhKSAtIDQpDQpgYGANCg0KDQpUaGUgd2Vha25lc3Mgb2YgY29tcHV0aW5nIGxlYWYgYXJlYSB3aXRoIGBjb3VudF9vYmplY3RzKClgIGlzIHRoYXQgaXQgaXMgbmVlZGVkIHRvIGZpcnN0IG9idGFpbiB0aGUgb2JqZWN0IGlkZW50aWZpY2F0aW9uIHRvIGtub3cgd2hpY2ggb2JqZWN0IChsZWFmKSBpcyB0aGUgc2FtcGxlIHdpdGggYSBrbm93biBhcmVhLiBUaGlzIG9iamVjdCBpZCBtYXkgY2hhbmdlIGZyb20gaW1hZ2UgdG8gaW1hZ2UsIGVzcGVjaWFsbHkgZnJvbSBpbWFnZXMgd2l0aCBhIGRpZmZlcmVudCBudW1iZXIgb2YgbGVhdmVzLiBUaHVzLCBiYXRjaCBjb21wdXRpbmcgaXMgZGlmZmljdWx0IGluIHRoaXMgY2FzZS4NCg0KDQoNCiMgRGlzZWFzZSBzZXZlcml0eQ0KIyMgU2luZ2xlIGltYWdlcw0KDQpgYGB7ciBkaXNlYXNlMSwgZmlnLndpZHRoPTEyLCBmaWcuaGVpZ2h0PTN9DQojIHRlbXBvcmFyeSBkaXJlY3RvcnkNCnNldHdkKCJkYXRhL2Rpc2Vhc2Vfc2V2ZXJpdHkvc295YmVhbiIpDQoNCiMgaW1wb3J0IGltYWdlcw0KaW1nIDwtIGltYWdlX2ltcG9ydCgic2V2X2xlYWYuanBnIikNCmhlYWx0aHkgPC0gaW1hZ2VfaW1wb3J0KCJzZXZfaGVhbHRoeS5qcGciKQ0Kc3ltcHRvbXMgPC0gaW1hZ2VfaW1wb3J0KCJzZXZfc3ltcHQuanBnIikNCmJhY2tncm91bmQgPC0gaW1hZ2VfaW1wb3J0KCJzZXZfYmFjay5qcGciKQ0KaW1hZ2VfY29tYmluZShpbWcsIGhlYWx0aHksIHN5bXB0b21zLCBiYWNrZ3JvdW5kLCBuY29sID0gNCkNCg0KYGBgDQoNCmBgYHtyIGRpc2Vhc2UyfQ0Kc3ltcHRvbWF0aWNfYXJlYShpbWcgPSBpbWcsDQogICAgICAgICAgICAgICAgIGltZ19oZWFsdGh5ID0gaGVhbHRoeSwNCiAgICAgICAgICAgICAgICAgaW1nX3N5bXB0b21zID0gc3ltcHRvbXMsDQogICAgICAgICAgICAgICAgIGltZ19iYWNrZ3JvdW5kID0gYmFja2dyb3VuZCwNCiAgICAgICAgICAgICAgICAgc2hvd19pbWFnZSA9IFRSVUUpDQoNCmBgYA0KDQoNCg0KIyBCYXRjaCBwcm9jZXNzaW5nDQojIyBsZWFmIGltYWdlcw0KDQpgYGB7ciBiYXRjaDEsIGZpZy53aWR0aD0xMCwgZmlnLmhlaWdodD0yMH0NCiMgdGVtcG9yYXJ5IGRpcmVjdG9yeQ0Kc2V0d2QoImRhdGEvZGlzZWFzZV9zZXZlcml0eS9zb3liZWFuX3J1c3QiKQ0Kc295X2xlYXZlcyA8LSBpbWFnZV9pbXBvcnQoaW1nX3BhdHRlcm4gPSAiMSIpDQppbWFnZV9jb21iaW5lKHNveV9sZWF2ZXMsIG5jb2wgPSA1KQ0KDQoNCg0KDQpgYGANCg0KDQojIyBTZXZlcml0eSBtZWFzdXJlbWVudA0KDQoNCmBgYHtyIGJhdGNoMn0NCnN5c3RlbS50aW1lKA0Kc295X3J1c3QgPC0NCiAgc3ltcHRvbWF0aWNfYXJlYShpbWdfcGF0dGVybiA9ICIxIiwNCiAgICAgICAgICAgICAgICAgICBpbWdfc3ltcHRvbXMgPSAic295X3J1c3QiLA0KICAgICAgICAgICAgICAgICAgIGltZ19oZWFsdGh5ID0gInNveV9sZWFmIiwNCiAgICAgICAgICAgICAgICAgICBpbWdfYmFja2dyb3VuZCA9ICJzb3lfYmciLA0KICAgICAgICAgICAgICAgICAgIGRpcl9vcmlnaW5hbCA9ICJkYXRhL2Rpc2Vhc2Vfc2V2ZXJpdHkvc295YmVhbl9ydXN0IiwNCiAgICAgICAgICAgICAgICAgICBkaXJfcHJvY2Vzc2VkID0gImRhdGEvZGlzZWFzZV9zZXZlcml0eS9zb3liZWFuX3J1c3QvcHJvY2Vzc2VkIiwNCiAgICAgICAgICAgICAgICAgICBzYXZlX2ltYWdlID0gVFJVRSwNCiAgICAgICAgICAgICAgICAgICBzaG93X2ltYWdlID0gRkFMU0UsDQogICAgICAgICAgICAgICAgICAgcGFyYWxsZWwgPSBUUlVFKQ0KKQ0Kc295X3J1c3QNCmBgYA0KDQoNCiMjIFByb2Nlc3NlZCBpbWFnZXMNCg0KYGBge3IgYmF0Y2gzLCBmaWcud2lkdGg9MTAsIGZpZy5oZWlnaHQ9MjB9DQojIHRlbXBvcmFyeSBkaXJlY3RvcnkNCnNldHdkKCJkYXRhL2Rpc2Vhc2Vfc2V2ZXJpdHkvc295YmVhbl9ydXN0L3Byb2Nlc3NlZCIpDQpzb3lfbGVhdmVzIDwtIGltYWdlX2ltcG9ydChpbWdfcGF0dGVybiA9ICJwcm9jIikNCmltYWdlX2NvbWJpbmUoc295X2xlYXZlcywgbmNvbCA9IDUpDQoNCg0KDQoNCmBgYA0KDQoNCg0KDQoNCg==</div>
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+<script>
+$(document).ready(function () {
+  window.initializeSourceEmbed("code.Rmd");
+});
+</script>
+
+<script>
+$(document).ready(function ()  {
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

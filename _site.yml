@@ -1,0 +1,27 @@
+name: potato_early_blight_biocontrol
+output_dir: docs
+output:
+  html_document:
+    code_download: true
+    theme: paper
+    css: my-style.css
+    df_print: paged
+    toc: yes
+    toc_float:
+      toc_collapsed: true
+    lib_dir: site_libs
+bibliography: crossref.bib
+csl: chicago-author-date.csl
+navbar:
+  title: Supporting material for pliman's paper
+  left:
+  - text: About
+    icon: fa fa-home
+    href: index.html
+  - text: Analysis 
+    icon: fa fa-file-code-o
+    href: code.html
+  right:
+  - text: Source
+    icon: fa-github-square
+    href: https://github.com/AlvesKS/potato_early_blight_biocontrol_clonostachys
