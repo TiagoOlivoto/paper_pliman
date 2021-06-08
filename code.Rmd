@@ -1,15 +1,15 @@
 % Analysis 
 
 ```{r global_options, include = FALSE}
-knitr::opts_chunk$set(cache = TRUE, comment = "")
+knitr::opts_chunk$set(cache = TRUE, comment = "##", collapse = TRUE)
 
 ```
 
 # Packages
-```{r packages}
+```{r packages, warning=FALSE}
 library(tidyverse) # data manipulation and plots
 library(pliman) # plant image analysis
-library(epiR) # concordance correlation coefficient
+library(DescTools) # concordance correlation coefficient
 library(rio) # import/export data
 ```
 
@@ -78,7 +78,7 @@ image_show(soy)
 image_combine(soy, soy2)
 
 # Combine images
-image_combine(soy_list)
+image_combine(soy_list, ncol = 3)
 
 
 ```
@@ -141,7 +141,7 @@ image_combine(soy, soy_h, soy_v, ncol = 3)
 
 ### Filter, blur, and contrast
 
-```{ manipulate5,r fig.width=10, fig.height=10}
+```{r manipulate6, fig.width=10, fig.height=10}
 soy_filter <- image_filter(soy)
 soy_blur <- image_blur(soy)
 soy_contrast <- image_contrast(soy)
@@ -158,10 +158,9 @@ image_export(soy, "soy_exported.jpg")
 ```
 
 ### Combining functions
-pliman offers the possibility of combining functions with the new R base forward pipe operator `|>`. In this example, I will show how it is possible to 
+`pliman` offers the possibility of combining functions with the new R base forward pipe operator `|>`.
 
 ```{r combiningfunct, fig.width=10, fig.height=5}
-library(pliman)
 setwd("data") # temporary directory
 a <- image_import(img_pattern = "soy_grains")
 image_combine(a)
@@ -293,8 +292,8 @@ image_segment(leaves, index = "all")
 Here, we need to combine `count_objects()` and `plot_measures()` to obtain the identification of each leaf, allowing the further adjustment of the leaf area.
 
 ```{r leaf5}
-count <- count_objects(leaves)
-plot_measures(count)
+count <- count_objects(leaves, marker = "text")
+
 ```
 
 
@@ -337,12 +336,32 @@ image_combine(img, healthy, symptoms, background, ncol = 4)
 
 ```
 
-```{r disease2}
+```{r disease2, fig.width=10, fig.height=5}
+# default settings
+res <- 
 symptomatic_area(img = img,
                  img_healthy = healthy,
                  img_symptoms = symptoms,
                  img_background = background,
-                 show_image = TRUE)
+                 save_image = TRUE,
+                 dir_processed = "data/disease_severity/soybean_rust/single")
+
+# create a personalized mask
+symptomatic_area(img = img,
+                 img_healthy = healthy,
+                 img_symptoms = symptoms,
+                 img_background = background,
+                 save_image = TRUE,
+                 show_original = FALSE,
+                 col_background = "black",
+                 dir_processed = "data/disease_severity/soybean_rust/single2")
+
+# import generated masks
+mask <- image_import("data/disease_severity/soybean_rust/single/proc_img.jpg")
+mask2 <- image_import("data/disease_severity/soybean_rust/single2/proc_img.jpg")
+
+# combine the masks with original image
+image_combine(img, mask, mask2, ncol = 3)
 
 ```
 
@@ -351,14 +370,13 @@ symptomatic_area(img = img,
 ## Batch processing
 ### leaf images
 
+Fifty soybean leaves previously processed in QUANT software were used. The images were retrieved from https://osf.io/4hbr6, a Plant Disease Severity Annotation Image Database. Thanks to [Emerson M. Del Ponte](https://osf.io/jb6yd/) and his collaborators for keeping this important project publicly available.
+
 ```{r batch1, fig.width=10, fig.height=20}
 # temporary directory
 setwd("data/disease_severity/soybean_rust")
 soy_leaves <- image_import(img_pattern = "1")
 image_combine(soy_leaves, ncol = 5)
-
-
-
 
 ```
 
@@ -399,27 +417,53 @@ image_combine(soy_leaves, ncol = 5)
 
 ## Concordance correlation coefficient
 
-```{r}
-
-library(epiR)
-ccc100 <- epi.ccc(bind %>% filter(resolution == 100) %>% .[["Quant"]],
-                  bind %>% filter(resolution == 100) %>% .[["pliman"]])
-ccc100$rho.c
+```{r corcordance}
+bind <- import("data/disease_severity/soybean_rust/data_quant_pliman.xlsx")
+concordance <- CCC(bind$Quant, bind$pliman)
+concordance$rho.c
 ```
 
 
 # Count objects
+## Images
+```{r count_imgs, fig.width=10, fig.height=11}
+imgs <- list(
+been_blue = image_import("data/count_objects/been_blue/IMG_1254.jpg"),
+been_white = image_import("data/count_objects/been_white/IMG_1192.jpg"),
+soy_blue = image_import("data/count_objects/soy_blue/IMG_1266.jpg"),
+soy_white = image_import("data/count_objects/soy_white/IMG_1178.jpg"),
+wheat_blue = image_import("data/count_objects/wheat_blue/IMG_1280.jpg"),
+wheat_white = image_import("data/count_objects/wheat_white/IMG_1158.jpg")
+)
+image_combine(imgs, ncol = 2)
+```
+
+
+## Concordance
+
 ```{r count1}
-
-validation <- rio::import("data/count_objects/count_data.xlsx")
-
+validation <- import("data/count_objects/count_data.xlsx")
+validation
+# helper function to compute the concordance correlation coefficient
+get_ccc <- function(df, real, predicted){
+  real <- pull(df, {{real}})
+  predicted <- pull(df, {{predicted}})
+  CCC(real, predicted)$rho.c
+}
+### overall concordance
+get_ccc(validation, REAL, PREDICTED)
+### concordance by crop, resolution and background color
+validation %>% 
+  group_by(RESOLUTION, CROP, BACKGROUND) %>% 
+  do(get_ccc(., REAL, PREDICTED))
+### identity line
 ggplot(validation, aes(REAL, PREDICTED))+
   geom_point(aes(color = factor(CROP))) +
   geom_smooth(method = "lm", se = FALSE) +
   geom_abline(intercept = 0 , slope = 1, linetype = 2) +
   facet_grid(BACKGROUND ~ RESOLUTION) +
-  labs(x = "Real number of seeds",
-       y = "Counted number of seeds") +
+  labs(x = "Actual number of grains",
+       y = "Counted number of grains") +
   theme(legend.position = "bottom",
         legend.title = element_blank(),
         axis.ticks.length = unit(0.2, "cm"),
@@ -435,4 +479,46 @@ ggplot(validation, aes(REAL, PREDICTED))+
 
 ```
 
+# RGB for each image objects
+
+```{r rgb1, fig.width = 10, fig.height=10}
+
+img <- image_import("data/objects_rgb/thetrazolium.jpg")
+
+# identify the index that better segments the image
+image_segment(img, index = "all", ncol = 4)
+```
+
+
+## Get the RGB values for each object
+
+The index `NB` was chosen to segment the grains from background. The mean of blue values will be computed by declaring `object_index = "B"`.
+
+```{r rgb2, fig.width = 10, fig.height=10}
+ids <- 
+  objects_rgb(img, 
+              index = "NB", # (default) used to segment objects from background
+              object_index = "B", # Show the mean of blue values for each object
+              object_size = "elarge")
+plot(ids)
+```
+
+
+## plot the index 
+Here, I use `image_segment()` and `plot_measures()` to plot the mean of blue values for each object.
+
+```{r rgb3, fig.width = 10, fig.height=8}
+image_segment(img,
+              index = "NB",
+              verbose = FALSE)
+plot_measures(ids,
+              measure = "index", # plot the mean of blue values for each object
+              col = "black")
+```
+
+It seems that grains with mean blue values higher than 0.3 presents some level of damage. Users can then work with this feature and adapt it to your own case.
+
+```{r rgb4}
+length(which(ids$indexes$index > 0.3))
+```
 

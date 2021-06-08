@@ -1,4 +1,4 @@
-name: potato_early_blight_biocontrol
+name: pliman_paper
 output_dir: docs
 output:
   html_document:
@@ -6,12 +6,11 @@ output:
     theme: paper
     css: my-style.css
     df_print: paged
+    number_sections: true
     toc: yes
     toc_float:
       toc_collapsed: true
     lib_dir: site_libs
-bibliography: crossref.bib
-csl: chicago-author-date.csl
 navbar:
   title: Supporting material for pliman's paper
   left:
@@ -24,4 +23,4 @@ navbar:
   right:
   - text: Source
     icon: fa-github-square
-    href: https://github.com/AlvesKS/potato_early_blight_biocontrol_clonostachys
+    href: https://github.com/TiagoOlivoto/paper_pliman
