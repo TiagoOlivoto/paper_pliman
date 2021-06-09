@@ -7,10 +7,10 @@ knitr::opts_chunk$set(cache = TRUE, comment = "##", collapse = TRUE)
 
 # Packages
 ```{r packages, warning=FALSE}
-library(tidyverse) # data manipulation and plots
-library(pliman) # plant image analysis
-library(DescTools) # concordance correlation coefficient
-library(rio) # import/export data
+library(tidyverse)  # data manipulation and plots
+library(pliman)     # plant image analysis
+library(DescTools)  # concordance correlation coefficient
+library(rio)        # import/export data
 ```
 
 
@@ -29,7 +29,7 @@ if(!require(devtools)) install.packages("devtools")
 
 ```
 
-After `devtools` properly installed, you can install `pliman` by running the following code. Please, note that the installation will also download the dependencies required to run the package.
+After `devtools` is properly installed, you can install `pliman` by running the following code. Please, note that the installation will also download the dependencies required to run the package.
 
 ```{r, eval=FALSE}
 devtools::install_github("TiagoOlivoto/pliman")
@@ -55,7 +55,7 @@ soy2 <- image_import("data/soy_grains_2.jpg")
 ```
 
 
-To import a list of images, the argument `img_pattern` of the function `image_import()` is used. All images that matches the pattern name are imported into a list.
+To import a list of images, the argument `img_pattern` of the function `image_import()` is used. All images that match the pattern name are imported into a list.
 
 ```{r import2 }
 # set a temporary working directory
@@ -68,7 +68,7 @@ names(soy_list)
 
 
 ## Displaying images
-Single images are displayed with `image_show()`. For combining images, the function `image_combine()` is used. Users can inform either a comma-separated list of objects or list of objects of class `Image`.
+Single images are displayed with `image_show()`. For combining images, the function `image_combine()` is used. Users can inform either a comma-separated list of objects or a list of objects of class `Image`.
 
 ```{r display1, fig.width=12}
 # Single images
@@ -87,10 +87,10 @@ image_combine(soy_list, ncol = 3)
 ## Manipulating images
 
 
-`pliman` provides useful functions to perform image transformation of unique images or list of images based on the [EBImage package](https://www.bioconductor.org/packages/release/bioc/vignettes/EBImage/inst/doc/EBImage-introduction.html). All the functions shown here works natturaly either with a single image or a list of images.
+`pliman` provides useful functions to perform image transformation of unique images or list of images based on the [EBImage package](https://www.bioconductor.org/packages/release/bioc/vignettes/EBImage/inst/doc/EBImage-introduction.html). All the functions shown here works naturally either with a single image or a list of images.
 
-### Rezise an image
-`image_resize()` is used to resize an image. The argument `rel_size` can be used to resize the image by relative size. For example, setting `rel_size = 50` to an image of width 1280 x 720, the new image will have a size of 640 x 360. This is useful to speed up the time of analysis such as those computed with `count_objects` and `symptomatic_area()`.
+### Resize an image
+`image_resize()` is used to resize an image. The argument `rel_size` can be used to resize the image by relative size. For example, by setting `rel_size = 50` to an image of width 1280 x 720, the new image will have a size of 640 x 360. This is useful to speed up the time of analysis such as those computed with `count_objects` and `symptomatic_area()`.
 
 ```{r manipulate1}
 image_dimension(soy)
@@ -240,7 +240,7 @@ image_binary(soy,
 # Leaf area
 ## Leaf area using leaf_area()
 
-In this example, an image with five tree leaves and a yellow template with a know area of 4 cm$^2$ is used.
+In this example, an image with five tree leaves and a yellow template with a known area of 4 cm$^2$ is used.
 
 ```{r leaf1}
 img <- image_import("data/leaf_area/la_pattern.JPG")
@@ -299,7 +299,7 @@ count <- count_objects(leaves, marker = "text")
 
 2. Adjust the leaf area by the area of the known object
 
-The function `get_measures()` is used to adjust the leaf area using the object 6.
+The function `get_measures()` is used to adjust the leaf area using object 6.
 
 ```{r leaf6}
 area <- 
@@ -360,7 +360,7 @@ symptomatic_area(img = img,
 mask <- image_import("data/disease_severity/soybean_rust/single/proc_img.jpg")
 mask2 <- image_import("data/disease_severity/soybean_rust/single2/proc_img.jpg")
 
-# combine the masks with original image
+# combine the masks with the original image
 image_combine(img, mask, mask2, ncol = 3)
 
 ```
@@ -492,7 +492,7 @@ image_segment(img, index = "all", ncol = 4)
 
 ## Get the RGB values for each object
 
-The index `NB` was chosen to segment the grains from background. The mean of blue values will be computed by declaring `object_index = "B"`.
+The index `NB` was chosen to segment the grains from the background. The mean of blue values will be computed by declaring `object_index = "B"`.
 
 ```{r rgb2, fig.width = 10, fig.height=10}
 ids <- 
@@ -516,9 +516,8 @@ plot_measures(ids,
               col = "black")
 ```
 
-It seems that grains with mean blue values higher than 0.3 presents some level of damage. Users can then work with this feature and adapt it to your own case.
+It seems that grains with mean blue values higher than 0.3 present some level of damage. Users can then work with this feature and adapt it to their case.
 
 ```{r rgb4}
 length(which(ids$indexes$index > 0.3))
 ```
-

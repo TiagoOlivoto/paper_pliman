@@ -18,6 +18,19 @@ In this website are available the codes used to reproduce the analysis and resul
 
 # How to reproduce?
 
-Test
+* Download data
 
+To download the files and code needed for reproducing the results, first clone the project with
+
+```{r eval = FALSE}
+git clone https://github.com/TiagoOlivoto/paper_pliman.git
+```
+
+
+An alternative way is by downloading the [ZIP file](https://github.com/TiagoOlivoto/paper_pliman/archive/refs/heads/master.zip) containing the codes. 
+
+* Reproducing
+   - Open the `code.Rmd` file in RStudio.
+   - Optionally change functions and arguments.
+   - Knit the document to see the results.
 

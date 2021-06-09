@@ -1,5 +1,6 @@
 name: pliman_paper
 output_dir: docs
+exclude: ["*.docx", "*.pptx"]
 output:
   html_document:
     code_download: true

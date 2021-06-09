@@ -3,7 +3,7 @@
 .RData
 .Ruserdata
 code_cache
-main_document.docx
+*.docx
 *.pptx
 data/disease_severity/soybean_rust/soy_severity.R
 .RDataTmp
