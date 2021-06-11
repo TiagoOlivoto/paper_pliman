@@ -32,7 +32,6 @@ pre code, pre, code {
  font-size: 0.9em;
  line-height:110%;
   white-space: pre !important;
-  overflow-x: scroll !important;
   word-break: keep-all !important;
   word-wrap: initial !important
 }
