@@ -6,11 +6,17 @@ knitr::opts_chunk$set(cache = TRUE, comment = "##", collapse = TRUE)
 ```
 
 # Packages
+To reproduce the examples of this material, the following packages are needed.
+
 ```{r packages, warning=FALSE}
 library(tidyverse)  # data manipulation and plots
 library(pliman)     # plant image analysis
 library(DescTools)  # concordance correlation coefficient
 library(rio)        # import/export data
+library(LeafArea)   # leaf area
+library(ggrepel)    # plots
+library(ggh4x)      # plots
+library(GGally)     # pairwise correlation plots
 ```
 
 
@@ -38,47 +44,120 @@ devtools::install_github("TiagoOlivoto/pliman")
 
 Them, load `pliman` by running 
 ```{r load, message=FALSE, warning=FALSE}
-
 library(pliman)
 ```
 
 
+# Helper functions
+```{r}
+# helper function to compute concordance statistics
+get_ccc <- function(df, predicted, real){
+  if(is.grouped_df(df)){
+    df %>% 
+      group_modify(~get_ccc(.x, {{predicted}}, {{real}})) %>% 
+      ungroup()
+  } else{
+    predicted <- pull(df, {{predicted}})
+    real <- pull(df, {{real}})
+    cor <- CCC(real, predicted, na.rm = TRUE)
+    data.frame(r = cor(real, predicted, use = "pairwise.complete.obs"),
+               pc = cor$rho.c[[1]],
+               lwr_ci = cor$rho.c[[2]],
+               upr_ci = cor$rho.c[[3]],
+               bc = cor$C.b)
+  }
+}
+
+# helper function to plot the CCC in ggpairs()
+custom_ccc <- function(data, mapping,...){
+  data2 <- data
+  data2$x <- as.numeric(data[,as_label(mapping$x)])
+  data2$y <- as.numeric(data[,as_label(mapping$y)])
+  data2$group <- data[,as_label(mapping$colour)]
+  correlation_df <- data2 %>% 
+    group_by(group) %>%
+    summarize(estimate = round(as.numeric(DescTools::CCC(x, y)$rho.c[1]),3))
+  ggplot(data=correlation_df, aes(x=1,y=group, color = group))+
+    geom_text(aes(label = paste0("rho[c]: ", estimate)),
+              data = correlation_df,
+              parse = TRUE,
+              size = 4)
+}
+custom_smoth <- function(data, mapping, method="lm", ...){
+  p <- ggplot(data = data, mapping = mapping) + 
+    geom_abline(color = "black",
+                intercept = 0,
+                size = 0.7,
+                slope = 1,
+                linetype = 2) +
+    geom_point(alpha = 0.6,
+               shape = 21,
+               size = 2.5,
+               stroke = 0,
+               color = "black") 
+  p
+}
+
+# ggplot theme
+my_theme <- function(){
+  theme_grey() %+%
+    theme(legend.position = "bottom",
+          legend.box.margin=margin(-10,-10,-10,-10),
+          legend.title = element_blank(),
+          axis.ticks.length = unit(0.2, "cm"),
+          panel.grid = element_blank(),
+          panel.spacing = unit(0, "cm"),
+          panel.background = element_rect(color = "black", fill = NA),
+          axis.text = element_text(color = "black", size = 10),
+          axis.title = element_text(color = "black", size = 10),
+          legend.key = element_rect(fill = NA),
+          strip.background = element_rect(color = "black", fill = NA))
+}
+
+
+```
+
 # Image manipulation
 
-## Importing images
+## Importing images 
 
 ```{r import1 }
-library(pliman)
 soy <- image_import("data/soy_grains.jpg")
 soy2 <- image_import("data/soy_grains_2.jpg")
 
 ```
 
 
-To import a list of images, the argument `img_pattern` of the function `image_import()` is used. All images that match the pattern name are imported into a list.
+To import a list of images, the argument `pattern` of the function `image_import()` is used. All images that match the pattern name are imported into a list.
 
 ```{r import2 }
-# set a temporary working directory
-setwd("data")
-soy_list <- image_import(img_pattern = "soy_")
+soy_list <- 
+  image_import(pattern = "soy_",
+               path = "./data") # choose path directory
 names(soy_list)
 ```
 
 
 
 
-## Displaying images
-Single images are displayed with `image_show()`. For combining images, the function `image_combine()` is used. Users can inform either a comma-separated list of objects or a list of objects of class `Image`.
+## Displaying images 
+Single images are displayed with `plot()`. For combining images, the function `image_combine()` is used. Users can inform either a comma-separated list of objects or a list of objects of class `Image`.
 
 ```{r display1, fig.width=12}
 # Single images
-image_show(soy)
+plot(soy)
 
+
+```
+
+
+
+```{r display2, fig.width=12}
 # Combine images
 image_combine(soy, soy2)
 
 # Combine images
-image_combine(soy_list, ncol = 3)
+image_combine(soy_list)
 
 
 ```
@@ -87,10 +166,10 @@ image_combine(soy_list, ncol = 3)
 ## Manipulating images
 
 
-`pliman` provides useful functions to perform image transformation of unique images or list of images based on the [EBImage package](https://www.bioconductor.org/packages/release/bioc/vignettes/EBImage/inst/doc/EBImage-introduction.html). All the functions shown here works naturally either with a single image or a list of images.
+`pliman` provides a set of `image_*()` functions to perform image manipulation and transformation of unique images or a list of images based on the [EBImage package](https://www.bioconductor.org/packages/release/bioc/vignettes/EBImage/inst/doc/EBImage-introduction.html).
 
 ### Resize an image
-`image_resize()` is used to resize an image. The argument `rel_size` can be used to resize the image by relative size. For example, by setting `rel_size = 50` to an image of width 1280 x 720, the new image will have a size of 640 x 360. This is useful to speed up the time of analysis such as those computed with `count_objects` and `symptomatic_area()`.
+Sometimes resizing of high-resolution images is needed to reduce the processing time. The function `image_resize()` is used to resize an image. The argument `rel_size` can be used to resize the image by relative size. For example, by setting `rel_size = 50` to an image of width 1280 x 720, the new image will have a size of 640 x 360. This is useful to speed up the time of analysis such as those computed with `analyze_objects()` and `measure_disease()`.
 
 ```{r manipulate1}
 image_dimension(soy)
@@ -98,22 +177,90 @@ soy_resized <- image_resize(soy, rel_size = 50)
 image_dimension(soy_resized)
 ```
 
-### Auto crop
-Cropping images is useful to remove noises from image edge, as well as to reduce the size of images before processing. `pliman` provides auto-cropping of images with `image_autocrop()`. 
 
-```{r manipulate2, fig.width=20}
-soy_crop <- image_autocrop(soy)
-soy_crop2 <- image_autocrop(soy, edge = 30) # add 30 pixels around objects' area
-image_combine(soy, soy_crop, soy_crop2, ncol = 3)
+### Crop an image
+Cropping images is useful to remove noises from the image edge, as well as to reduce the size of images before processing. To crop an image, the function `image_crop()` is used. Users need to inform a numeric vector indicating the pixel range (`width` and `height`) that will be maintained in the cropped image.
+
+```{r}
+crop1 <-
+  image_crop(soy,
+             width = 170:720,
+             height = 300:650,
+             plot = TRUE)
 ```
+
+If only `width` or `height` are informed, the image will be cropped vertically or horizontally.
+
+```{r}
+crop2 <-
+  image_crop(soy,
+             width = 170:720,
+             plot = TRUE)
+```
+
+If both `width` and `height` are missing, an iterative process of image cropping is performed.
+
+```{r eval=FALSE}
+# only run in an iterative section
+image_crop(soy)
+```
+
+
+Additionally, an automated cropping process can be performed. In this case, the image will be automatically cropped to the area of objects with an edge of five pixels by default.
+
+```{r}
+auto_crop <- image_autocrop(soy, plot = TRUE)
+```
+
+
+The function `image_trim()` is used to trim pixels from image edges.
+
+
+```{r manipulate2, fig.width=10}
+# trim 100 pixels from all edges
+soy_trim <- image_trim(soy, edge = 100, plot = TRUE)
+
+# The same is achieved with
+soy_trim2 <-
+  image_trim(soy,
+             top = 100,
+             bottom = 100,
+             left = 100,
+             right = 100,
+             plot = TRUE)
+
+# trim 200 pixels from top and bottom
+soy_trim3 <-
+  image_trim(soy,
+             top = 200,
+             bottom = 200,
+             plot = TRUE)
+# trim to 5 pixels around objects' area
+
+```
+
+
+
+
+### Image resolution (DPI) {#dpi}
+The function `dpi()` runs an interactive function to compute the image resolution given a known distance informed by the user. To compute the image resolution (dpi) the user must use the left button mouse to create a line of known distance. This can be done, for example, using a template with known distance in the image (e.g., `leaves.JPG`).
+
+```{r eval=FALSE}
+# only run in an interactive section
+leaves <- image_import("./data/leaf_area/leaves.JPG")
+dpi(leaves)
+```
+
+
+<iframe width="760" height="430" src="https://www.youtube.com/embed/Rh10_pLgeng" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
 
 
 ### Rotate an image
 `image_rotate()` is used to rotates the image clockwise by the given angle.
 
 ```{r manipulate3 }
-soy_rotated <- image_rotate(soy, angle = 45)
-image_show(soy_rotated)
+soy_rotated <- image_rotate(soy, angle = 45, plot = TRUE)
 ```
 
 
@@ -139,60 +286,94 @@ image_combine(soy, soy_h, soy_v, ncol = 3)
 ```
 
 
-### Filter, blur, and contrast
+### Filter, blur, contrast, dilatation, and erosion
 
-```{r manipulate6, fig.width=10, fig.height=10}
+```{r manipulate6, fig.width=10, fig.height=6}
 soy_filter <- image_filter(soy)
 soy_blur <- image_blur(soy)
 soy_contrast <- image_contrast(soy)
-image_combine(soy, soy_filter, soy_blur, soy_contrast)
+soy_dilatation <- image_dilate(soy)
+soy_erosion <- image_erode(soy)
+image_combine(soy, soy_filter, soy_blur, soy_contrast, soy_dilatation, soy_erosion)
 ```
 
 
 
 ### Exporting images
-To export images to the current directory, use the function `image_export()`.
+To export images to the current directory, use the function `image_export()`. If a list of images is exported, the images will be saved considering the name and extension present in the list. If no extension is present, the images will be saved as `*.jpg` files.
 
 ```{r export}
-image_export(soy, "soy_exported.jpg")
+image_export(soy, "exported.jpg")
 ```
 
 ### Combining functions
-`pliman` offers the possibility of combining functions with the new R base forward pipe operator `|>`.
+`pliman` offers the possibility of combining functions with the new R base (4.1) forward pipe operator `|>`.
 
 ```{r combiningfunct, fig.width=10, fig.height=5}
-setwd("data") # temporary directory
-a <- image_import(img_pattern = "soy_grains")
+# temporary directory
+a <- image_import(pattern = "soy_grains",
+                  path = "./data")
 image_combine(a)
 
 # reduce resolution, autocrop, vertical rotation,
 # create a binary image, export
 a |>
   image_resize(rel_size = 50) |>
+  image_blur() |>
   image_autocrop() |>
   image_vertical() |>
-  image_binary(index = "NB", show_image = FALSE) |>
+  image_binary(index = "NB",
+               show_image = FALSE,
+               resize = FALSE) |>
   image_combine()
 ```
 
 
 
 # Image segmentation
-
 In `pliman` the following functions can be used to segment an image.
 
 * `image_binary()` to produce a binary (black and white) image
 * `image_segment()` to produce a segmented image (image objects and a white background).
+* `image_segment_iter()` to segment an image iteratively.
 
-Both functions segment the image based on the value of some image index, which may be one of the RGB bands or any operation with these bands. Internally, these functions call `image_index()` to compute these indexes. 
+Both functions segment the image based on the value of some image index, which may be one of the RGB bands or any operation with these bands. Internally, these functions call `image_index()` to compute these indexes. The following indexes are currently available.
 
-Here, we use the argument `index"` to test the segmentation based on the RGB and their normalized values. Users can also provide your index with the argument `my_index`.
+
+| Index |           Equation          |
+|-------|:---------------------------:|
+| R     |              R              |
+| G     |              G              |
+| B     |              B              |
+| NR    |          R/(R+G+B)          |
+| NG    |          G/(R+G+B)          |
+| NB    |          B/(R+G+B)          |
+| GB    |             G/B             |
+| RB    |             R/B             |
+| GR    |             G/R             |
+| BI    |    sqrt((R\^2+G\^2+B\^2)/3)    |
+| BIM   |    sqrt((R\*2+G\*2+B\*2)/3)    |
+| SCI   |         (R-G)/(R+G)         |
+| GLI   |     (2\*G-R-B)/(2\*G+R+B)     |
+| HI    |       (2\*R-G-B)/(G-B)       |
+| NGRDI |         (G-R)/(G+R)         |
+| NDGBI |         (G-B)/(G+B)         |
+| NDRBI |         (R-B)/(R+B)         |
+| I     |            R+G+B            |
+| S     |    ((R+G+B)-3\*B)/(R+G+B)    |
+| VARI  |        (G-R)/(G+R-B)        |
+| HUE   |  atan(2\*(B-G-R)/30.5\*(G-R)) |
+| HUE2  |  atan(2\*(R-G-R)/30.5\*(G-B)) |
+| BGI   |             B/G             |
+| L     |           R+G+B/3           |
+| GRAY  | 0.299\*R + 0.587\*G + 0.114\*B |
+
+
+
+Here, I use the argument `index"` to test the segmentation based on the RGB and their normalized values. Users can also provide their own index with the argument `my_index`.
 
 ```{r segmentation1 }
-
-soy <- image_import("data/segmentation/soybean_touch.jpg")
-image_show(soy)
-
+soy <- image_import("data/segmentation/seg_medium.jpg", plot = TRUE)
 
 ```
 
@@ -200,20 +381,26 @@ image_show(soy)
 # Compute the indexes
 indexes <- image_index(soy, index = c("R, G, B, NR, NG, NB"))
 
-# Create a histogram with the RGB values
+
+# Create a raster plot with the RGB values
 plot(indexes)
+
+# Create a histogram with the RGB values
+plot(indexes, type = "hist")
 ```
 
 In this example, we can see the distribution of the RGB values (first row) and the normalized RGB values (second row). The two peaks represent the grains (smaller peak) and the blue background (larger peak). The clearer the difference between these peaks, the better will the image segmentation.
 
-The function `image_segmentation()` is used to segment images using image indexes. In our example, we will use the same indexes computed below to see how the image is segmented. The output of this function can be used as input in the function `count_objets()`.
+## Segment an image
+
+The function `image_segmentation()` is used to segment images using image indexes. In this example, I will use the same indexes computed below to see how the image is segmented. The output of this function can be used as input in the function `analyze_objects()`.
 
 ```{r segmentation3, fig.width=10, fig.height=5}
 segmented <- image_segment(soy, index = c("R, G, B, NR, NG, NB"))
 
 ```
 
-It seems that the "NB" index provided better segmentation. "R" and "NR" resulted in an inverted segmented image, i.e., the grains were considered as background and the remaining as 'selected' image. To circumvent this problem, we can use the argument `invert` in those functions.
+It seems that the `"NB"` index provided better segmentation. `"R"` and `"NR"` resulted in an inverted segmented image, i.e., the grains were considered as background and the remaining as 'selected' image. To circumvent this problem, we can use the argument `invert` in those functions.
 
 ```{r segmentation4, fig.width=10, fig.height=5}
 image_segment(soy,
@@ -223,61 +410,665 @@ image_segment(soy,
 ```
 
 
+## Iterative segmentation
+
+The function `image_segment_iter()` provides an iterative image segmentation, returning the proportions of segmented pixels. This is useful when more than one segmentation procedure is needed. Users can choose how many segmentation perform, using the argument `nseg`.
+
+```{r segmentation5}
+seg_iter <- image_import(image_pliman("sev_leaf_nb.jpg"), plot = TRUE)
+
+```
+
+Using a soybean sample leaf (above), I will use the function `image_segment_iter` to segment the diseased tissue from healthy tissue. The aim is to segment the symptoms into two classes, namely, necrosis (brown areas) and chlorosis (yellow areas), and compute the percentage of each symptom class.
+
+First, we need to find a suitable index for segmentation.
+
+```{r segmentation6, fig.width=10, fig.height=10}
+# First segmentation
+seg <-
+  image_segment(seg_iter,
+                index = "all")
+
+# second segmentation
+seg2 <-
+  image_segment(seg$VARI$image,
+                index = "all")
+
+```
+
+Note that the same results can be obtainet with `image_segment_iter()` using an iterative section.
+
+```{r segmentation7, eval=FALSE}
+# Only run iteratively
+image_segment_iter(seg_iter, nseg = 2)
+```
+
+
+The `"VARI"` seems to be a suitable index to segment symptoms (necrosis and chlorosis) from healthy tissues. The `"GLI"` can be used to segment necrosis from chlorosis. Knowing this, we can now use `image_segment_iter()` explicitly indicating these indexes, as follows
+
+```{r segmentation8, fig.width=10}
+
+image_segment_iter(seg_iter,
+                   nseg = 2, # two segmentations
+                   index = c("VARI", "GLI"),
+                   ncol = 3)
+```
+
+It can be observed that 30.28% of the original image were characterized as symptoms (both necrosis and chlorosis). Of out this (symptomatic area), 25.92% are necrotic areas. So 7.85% of the total area were considered as necrotic areas (30.288 $\times$ 0.2592 or 103464/1317600 $\times$ 100) and 22.43% (30.28 - 7.85 or (399075 - 103464) / 1317600 $\times$ 100) were considered as chlorotic areas.
+
+Users can use the argument `threshold` to controls how segmentation is made. By default (`threshold = "Otsu"`), a threshold value based on Otsu's method is used to reduce the grayscale image to a binary image.   If a numeric value is informed, this value will be used as a threshold. Inform any non-numeric value different than `"Otsu"` to iteratively chosen the threshold based on a raster plot showing pixel intensity of the index. For `image_segmentation_iter()`, a vector (allows a mixed (numeric and character) type) with the same length of `nseg` can be used.
+
+```{r segmentation9, fig.width=10}
+seg_iter1 <-
+  image_segment_iter(seg_iter,
+                     nseg = 2, # two segmentations
+                     index = c("VARI", "GLI"),
+                     threshold = c(0.3, "Otsu"),
+                     ncol = 3,
+                     show_image = FALSE)
+seg_iter2 <-
+  image_segment_iter(seg_iter,
+                     nseg = 2, # two segmentations
+                     index = c("VARI", "GLI"),
+                     threshold = c(0.5, "Otsu"),
+                     ncol = 3,
+                     show_image = FALSE)
+
+image_combine(seg_iter1$images$seg1,
+              seg_iter2$images$seg1)
+```
+
+Users can then set the argument `threshold` for their specific case, depending on the aims of the segmentation.
+
+
+
 # Producing a binary image
 
-We can also produce a binary image with `image_binary()`. Just for curiosity, we will use the indexes `"R"` and `"NB"`. By default, `image_binary()` rescales the image to 30% of the size of the original image to speed up the computation time. Use the argument `resize = FALSE` to produce a binary image with the original size.
+We can also produce a binary image with `image_binary()`. Just for curiosity, we will use the indexes `"B"` (blue) and `"NB"` (normalized blue). By default, `image_binary()` rescales the image to 30% of the size of the original image to speed up the computation time. Use the argument `resize = FALSE` to produce a binary image with the original size.
 
 ```{r binary1, fig.width=10, fig.height=5}
-binary <- image_binary(soy, index = c("R, NB"))
+binary <- image_binary(soy)
 
 # original image size
 image_binary(soy,
-             index = c("R, NB"),
+             index = c("B, NB"),
              resize = FALSE)
 ```
 
 
+# Count objects
+## Check the better index to segment the image
+
+* Blue background
+
+```{r fig.width=10 }
+# wheat (NB)
+dir_wb <- "./data/count_objects/images/img_wb_50_1.jpg"
+wb <- image_import(image = dir_wb)
+image_binary(wb)
+
+
+# soybean (NB)
+dir_sb <- "./data/count_objects/images/img_sb_50_1.jpg"
+sb <- image_import(image = dir_sb)
+image_binary(sb)
+
+# bean (NR with invert= TRUE)
+dir_bb <- "./data/count_objects/images/img_bb_50_1.jpg"
+bb <- image_import(image = dir_bb)
+image_binary(bb)
+
+```
+
+
+
+
+
+
+```{r count_imgs, eval=FALSE}
+
+### SOYBEAN
+
+# mid-resolution images (_50) and with no filtering
+t1 <-
+  system.time(
+    sb_res_50_nf <-
+      analyze_objects(pattern = "sb_50",
+                      dir_original = "data/count_objects/images",
+                      show_image = FALSE,
+                      parallel = TRUE,
+                      verbose = FALSE)
+  )
+
+# mid-resolution images (_50) and with filtering
+t2 <-
+  system.time(
+    sb_res_50_wf <-
+      analyze_objects(pattern = "sb_50",
+                      dir_original = "/data/count_objects/images",
+                      show_image = FALSE,
+                      parallel = TRUE,
+                      filter = 2,
+                      verbose = FALSE)
+  )
+
+# high-resolution images (_100) and with no filtering
+t3 <-
+  system.time(
+    sb_res_100_nf <-
+      analyze_objects(pattern = "sb_100",
+                      dir_original = "/data/count_objects/images",
+                      show_image = FALSE,
+                      parallel = TRUE,
+                      verbose = FALSE)
+  )
+
+
+# low-resolution images (_100) and with filtering
+t4 <-
+  system.time(
+    sb_res_100_wf <-
+      analyze_objects(pattern = "sb_100",
+                      dir_original = "/data/count_objects/images",
+                      show_image = FALSE,
+                      parallel = TRUE,
+                      filter = 3,
+                      verbose = FALSE)
+  )
+
+
+
+
+
+
+
+
+### WHEAT
+
+# mid-resolution images (_50) and with no filtering
+wb_res_50_nf <-
+  analyze_objects(pattern = "wb_50",
+                  dir_original = "/data/count_objects/images",
+                  show_image = FALSE,
+                  parallel = TRUE,
+                  verbose = FALSE)
+
+# mid-resolution images (_50) and with filtering
+wb_res_50_wf <-
+  analyze_objects(pattern = "wb_50",
+                  dir_original = "/data/count_objects/images",
+                  show_image = FALSE,
+                  parallel = TRUE,
+                  filter = 2,
+                  verbose = FALSE)
+
+# high-resolution images (_100) and with no filtering
+wb_res_100_nf <-
+  analyze_objects(pattern = "wb_100",
+                  dir_original = "/data/count_objects/images",
+                  show_image = FALSE,
+                  parallel = TRUE,
+                  verbose = FALSE)
+
+
+# low-resolution images (_100) and with filtering
+wb_res_100_wf <-
+  analyze_objects(pattern = "wb_100",
+                  dir_original = "/data/count_objects/images",
+                  show_image = FALSE,
+                  parallel = TRUE,
+                  filter = 3,
+                  verbose = FALSE)
+
+
+
+
+
+### BEAN
+
+# mid-resolution images (_50) and with no filtering
+bb_res_50_nf <-
+  analyze_objects(pattern = "bb_50",
+                  dir_original = "/data/count_objects/images",
+                  index = "NR",
+                  invert = TRUE,
+                  show_image = FALSE,
+                  parallel = TRUE,
+                  verbose = FALSE)
+
+# mid-resolution images (_50) and with filtering
+bb_res_50_wf <-
+  analyze_objects(pattern = "bb_50",
+                  dir_original = "/data/count_objects/images",
+                  index = "NR",
+                  invert = TRUE,
+                  show_image = FALSE,
+                  parallel = TRUE,
+                  filter = 2,
+                  verbose = FALSE)
+
+# high-resolution images (_100) and with no filtering
+bb_res_100_nf <-
+  analyze_objects(pattern = "bb_100",
+                  dir_original = "/data/count_objects/images",
+                  index = "NR",
+                  invert = TRUE,
+                  show_image = FALSE,
+                  parallel = TRUE,
+                  verbose = FALSE)
+
+
+# low-resolution images (_100) and with filtering
+bb_res_100_wf <-
+  analyze_objects(pattern = "bb_100",
+                  dir_original = "/data/count_objects/images",
+                  index = "NR",
+                  invert = TRUE,
+                  show_image = FALSE,
+                  parallel = TRUE,
+                  filter = 3,
+                  verbose = FALSE)
+
+```
+
+
+
+* white background
+
+```{r, fig.width=10}
+
+# wheat (NB)
+dir_ww <- "./data/count_objects/images/img_ww_50_1.jpg"
+ww <- image_import(image = dir_ww)
+image_binary(ww)
+
+# soybean (NB)
+dir_sw <- "./data/count_objects/images/img_sw_50_1.jpg"
+sw <- image_import(image = dir_sw)
+image_binary(sw)
+
+# bean (G)
+dir_bw <- "./data/count_objects/images/img_bw_50_1.jpg"
+bw <- image_import(image = dir_bw)
+image_binary(bw)
+
+
+```
+
+
+
+```{r eval=FALSE}
+### SOYBEAN
+
+# mid-resolution images (_50) and with no filtering
+sw_res_50_nf <-
+  analyze_objects(pattern = "sw_50",
+                  dir_original = "/data/count_objects/images",
+                  show_image = FALSE,
+                  parallel = TRUE,
+                  verbose = FALSE)
+
+# mid-resolution images (_50) and with filtering
+sw_res_50_wf <-
+  analyze_objects(pattern = "sw_50",
+                  dir_original = "/data/count_objects/images",
+                  show_image = FALSE,
+                  parallel = TRUE,
+                  filter = 2,
+                  verbose = FALSE)
+sw_res_100_nf <-
+  analyze_objects(pattern = "sw_100",
+                  dir_original = "/data/count_objects/images",
+                  show_image = FALSE,
+                  parallel = TRUE,
+                  verbose = FALSE)
+
+
+# low-resolution images (_100) and with filtering
+sw_res_100_wf <-
+  analyze_objects(pattern = "sw_100",
+                  dir_original = "/data/count_objects/images",
+                  show_image = FALSE,
+                  parallel = TRUE,
+                  filter = 3,
+                  verbose = FALSE)
+
+
+
+
+
+
+### WHEAT
+
+# mid-resolution images (_50) and with no filtering
+ww_res_50_nf <-
+  analyze_objects(pattern = "ww_50",
+                  dir_original = "/data/count_objects/images",
+                  show_image = FALSE,
+                  parallel = TRUE,
+                  verbose = FALSE)
+
+# mid-resolution images (_50) and with filtering
+ww_res_50_wf <-
+  analyze_objects(pattern = "ww_50",
+                  dir_original = "/data/count_objects/images",
+                  show_image = FALSE,
+                  parallel = TRUE,
+                  filter = 2,
+                  verbose = FALSE)
+
+# high-resolution images (_100) and with no filtering
+ww_res_100_nf <-
+  analyze_objects(pattern = "ww_100",
+                  dir_original = "/data/count_objects/images",
+                  show_image = FALSE,
+                  parallel = TRUE,
+                  verbose = FALSE)
+
+
+# low-resolution images (_100) and with filtering
+ww_res_100_wf <-
+  analyze_objects(pattern = "ww_100",
+                  dir_original = "/data/count_objects/images",
+                  show_image = FALSE,
+                  parallel = TRUE,
+                  filter = 3,
+                  verbose = FALSE)
+
+
+
+
+
+### BEAN
+
+# mid-resolution images (_50) and with no filtering
+bw_res_50_nf <-
+  analyze_objects(pattern = "bw_50",
+                  dir_original = "/data/count_objects/images",
+                  index = "G",
+                  show_image = FALSE,
+                  parallel = TRUE,
+                  verbose = FALSE)
+
+# mid-resolution images (_50) and with filtering
+bw_res_50_wf <-
+  analyze_objects(pattern = "bw_50",
+                  dir_original = "/data/count_objects/images",
+                  index = "G",
+                  show_image = FALSE,
+                  parallel = TRUE,
+                  filter = 2,
+                  verbose = FALSE)
+
+# high-resolution images (_100) and with no filtering
+bw_res_100_nf <-
+  analyze_objects(pattern = "bw_100",
+                  dir_original = "/data/count_objects/images",
+                  index = "G",
+                  show_image = FALSE,
+                  parallel = TRUE,
+                  verbose = FALSE)
+
+
+# low-resolution images (_100) and with filtering
+bw_res_100_wf <-
+  analyze_objects(pattern = "bw_100",
+                  dir_original = "/data/count_objects/images",
+                  index = "G",
+                  show_image = FALSE,
+                  parallel = TRUE,
+                  filter = 3,
+                  verbose = FALSE)
+```
+
+
+```{r eval=FALSE, include=FALSE}
+dfs <- list(
+  sb_res_50_nf = sb_res_50_nf,
+  sb_res_50_wf = sb_res_50_wf,
+  sb_res_100_nf = sb_res_100_nf,
+  sb_res_100_wf = sb_res_100_wf,
+  
+  wb_res_50_nf = wb_res_50_nf,
+  wb_res_50_wf = wb_res_50_wf,
+  wb_res_100_nf = wb_res_100_nf,
+  wb_res_100_wf = wb_res_100_wf,
+  
+  bb_res_50_nf = bb_res_50_nf,
+  bb_res_50_wf = bb_res_50_wf,
+  bb_res_100_nf = bb_res_100_nf,
+  bb_res_100_wf = bb_res_100_wf
+)
+
+dfs2 <- lapply(dfs, function(x){
+  x$count
+})
+names(dfs2) <- names(dfs)
+
+dfs3 <- metan::rbind_fill_id(dfs2, .id = "dfs")
+
+blue_back <-
+  dfs3 %>%
+  separate(dfs  , into = c("crop", "aa", "resolution", "filter")) %>%
+  mutate(resolution = ifelse(resolution == 50, "816x612", "1632x1024"),
+         filter = ifelse(filter == "nf", "Without filter", "With filter"),
+         crop = case_when(crop == "sb" ~ "Soybean",
+                          crop == "wb" ~ "Wheat",
+                          crop == "bb" ~ "Bean"),
+         background = "Blue background") %>%
+  select(-aa)
+
+
+
+
+
+dfw <- list(
+  sw_res_50_nf = sw_res_50_nf,
+  sw_res_50_wf = sw_res_50_wf,
+  sw_res_100_nf = sw_res_100_nf,
+  sw_res_100_wf = sw_res_100_wf,
+  
+  ww_res_50_nf = ww_res_50_nf,
+  ww_res_50_wf = ww_res_50_wf,
+  ww_res_100_nf = ww_res_100_nf,
+  ww_res_100_wf = ww_res_100_wf,
+  
+  bw_res_50_nf = bw_res_50_nf,
+  bw_res_50_wf = bw_res_50_wf,
+  bw_res_100_nf = bw_res_100_nf,
+  bw_res_100_wf = bw_res_100_wf
+)
+
+dfs2w <- lapply(dfw, function(x){
+  x$count
+})
+names(dfs2w) <- names(dfw)
+
+dfs3w <- metan::rbind_fill_id(dfs2w, .id = "dfs")
+
+white_back <-
+  dfs3w %>%
+  separate(dfs  , into = c("crop", "aa", "resolution", "filter")) %>%
+  mutate(resolution = ifelse(resolution == 50, "816x612", "1632x1024"),
+         filter = ifelse(filter == "nf", "Without filter", "With filter"),
+         crop = case_when(crop == "sw" ~ "Soybean",
+                          crop == "ww" ~ "Wheat",
+                          crop == "bw" ~ "Bean"),
+         background = "White background") %>%
+  select(-aa)
+
+
+count <- import("data/count_objects/count_data.xlsx")
+df_final <- rbind(white_back, blue_back)
+validation <- count %>% left_join(df_final)
+
+```
+
+
+
+## Concordance
+
+```{r count1, fig.width=10, fig.height=8}
+
+validation <- import("data/count_objects/count_data.xlsx")
+
+### overall concordance
+get_ccc(validation, real, predicted)
+### concordance by resolution, filtering, crop, background
+df_ccc <-
+  validation %>%
+  group_by(filter) %>%
+  get_ccc(real, predicted) %>%
+  mutate(rho = paste0("rho[c]:~", round(pc, 3)),
+         bc = paste0("C[b]:~", round(bc, 3)),
+         r = paste0("r:~~~", round(r, 3)))
+
+
+ggplot(validation, aes(real, predicted))+
+  geom_abline(intercept = 0 , slope = 1, linetype = 2) +
+  geom_point(aes(fill = factor(crop)),
+             color = "black",
+             shape = 21,
+             size = 2.5,
+             alpha = 0.75,
+             stroke = 0.05) +
+  facet_nested(filter*resolution ~ background*crop ) +
+  geom_text(aes(label=rho),
+            x = 5,
+            y = 135,
+            hjust = 0,
+            size = 3,
+            data = df_ccc,
+            parse = TRUE) +
+  labs(x = "Actual number of grains",
+       y = "Predicted number of grains") +
+  my_theme() +
+  coord_fixed() +
+  scale_x_continuous(limits = c(0, 160),
+                     breaks = seq(0, 160, by = 50)) +
+  scale_y_continuous(limits = c(0, 160),
+                     breaks = seq(0, 160, by = 50))
+ggsave("figs/count_objects.pdf", width = 9, height = 7)
+```
+
+
+## Source of errors
+In the following plot, the quantification of the image `img_bw_50_1.jpg` (bean with blue background) is shown. When no filtering is used, some pixels within grains are considered as background, overestimating the number of grains when processing the image. The use of `filter = 2` improved the image binarization, providing an accuracy of 1.
+
+```{r errors, fig.width=10}
+errors <- image_import("figs/bean_filter.png", plot = TRUE)
+```
+
+
+## Benchmarking
+
+```{r bm, eval=FALSE}
+t1 <-
+  system.time(
+    a <- 
+      analyze_objects(pattern = "_50",
+                      dir_original = "data/count_objects/images",
+                      show_image = FALSE,
+                      parallel = TRUE,
+                      verbose = FALSE)
+  )
+t2 <-
+  system.time(
+    analyze_objects(pattern = "_50",
+                    dir_original = "data/count_objects/images",
+                    show_image = FALSE,
+                    parallel = TRUE,
+                    verbose = FALSE,
+                    filter = 2)
+  )
+t3 <-
+  system.time(
+    a <-  
+      analyze_objects(pattern = "_100",
+                      dir_original = "data/count_objects/images",
+                      show_image = FALSE,
+                      parallel = TRUE,
+                      verbose = FALSE)
+  )
+t4 <-
+  system.time(
+    a <-  
+      analyze_objects(pattern = "_100",
+                      dir_original = "data/count_objects/images",
+                      show_image = FALSE,
+                      parallel = TRUE,
+                      filter = 2,
+                      verbose = FALSE)
+  )
+t5 <-
+  system.time(
+    a <- 
+      analyze_objects(pattern = "_50",
+                      dir_original = "data/count_objects/images",
+                      show_image = FALSE,
+                      parallel = FALSE,
+                      verbose = FALSE)
+  )
+t6 <-
+  system.time(
+    a <- 
+      analyze_objects(pattern = "_50",
+                      dir_original = "data/count_objects/images",
+                      show_image = FALSE,
+                      parallel = FALSE,
+                      filter = 2,
+                      verbose = FALSE)
+  )
+t7 <-
+  system.time(
+    a <- 
+      analyze_objects(pattern = "_100",
+                      dir_original = "data/count_objects/images",
+                      show_image = FALSE,
+                      parallel = FALSE,
+                      verbose = FALSE)
+  )
+t8 <-
+  system.time(
+    a <- 
+      analyze_objects(pattern = "_100",
+                      dir_original = "data/count_objects/images",
+                      show_image = FALSE,
+                      parallel = FALSE,
+                      filter = 2,
+                      verbose = FALSE)
+  )
+```
+
+```{r benchmarking, fig.width=10}
+
+bench <- import("data/count_objects/time.xlsx")
+
+
+ggplot(bench, aes(filter, avg, fill = strategy)) +
+  geom_col(position =  position_dodge(width = 0.9)) +
+  facet_wrap(~resolution) +
+  scale_y_continuous(expand = expansion(c(0.05, 0.1))) +
+  geom_text(aes(label = round(avg, 2)),
+            position = position_dodge(width = 0.9),
+            vjust = -0.5,
+            hjust = 0.5,
+            size = 3) +
+  my_theme() +
+  labs(x = "Filter",
+       y = expression(Processing~time~(s~image^{-1})))
+ggsave("figs/benchmarking.pdf", width = 4, height = 4)
+```
+
+
+
 # Leaf area
-## Leaf area using leaf_area()
+We can use `analyze_objects()` to compute object features such as area, perimeter, radius, etc. This can be used, for example, to compute leaf area.
+Let's compute the leaf area of `leaves` with `analyze_objects()`. First, we use `image_segmentation()` to identify candidate indexes to segment foreground (leaves) from background.
 
-In this example, an image with five tree leaves and a yellow template with a known area of 4 cm$^2$ is used.
+```{r leaf3, fig.width=10 }
+leaves <- image_import("data/leaf_area/leaves2.JPG", plot = TRUE)
 
-```{r leaf1}
-img <- image_import("data/leaf_area/la_pattern.JPG")
-leaf <- image_import("data/leaf_area/la_leaf.jpg")
-tmpl <- image_import("data/leaf_area/la_temp.jpg")
-background <- image_import("data/leaf_area/la_back.jpg")
-
-# Combine the images
-image_combine(img, leaf, tmpl, background)
-```
-
-
-
-To compute the leaf area in the image, the following function is used. Then, `get_measures()` is used to get the values given in the scale of `area_template` argument. The other measures (namely, perimeter, radius_mean, radius_min, and radius_max) are given as pixels.
-
-```{r leaf2}
-area <- 
-leaf_area(img = img,
-          img_leaf = leaf,
-          img_template = tmpl,
-          img_background = background,
-          area_template = 4,
-          text_col = "white")
-
-# Get leaf measures
-get_measures(area)
-
-```
-
-
-## Leaf area using count_objects()
-
-An alternative way to compute leaf area in `pliman` is by using `count_objects()`. This function has the advantage of using image segmentation based on several indexes (e.g., red, green, and blue values). So, sample palettes don't need to be informed. Let us compute the leaf area of `leaves` with this approach. First, we use `image_segmentation()` to identify candidate indexes to segment the image.
-
-```{r leaf3 }
-leaves <- image_import("data/leaf_area/la_leaves.JPG")
-image_show(leaves)
 
 ```
 
@@ -285,76 +1076,502 @@ image_show(leaves)
 image_segment(leaves, index = "all")
 ```
 
-`G` (Green) and `NB` (Normalized Blue) are two possible candidates to segment the leaves from the background. We will use the `NB` index here (default option in `count_objects()`). The measurement of the leaf area in this approach is given with the following two steps.
+`G` (Green) and `NB` (Normalized Blue) are two possible candidates to segment the leaves from the background. We will use the `NB` index here (default option in `analyze_objects()`). The measurement of the leaf area in this approach can be done in two main ways: 1) using an object of known area, and 2) knowing the image resolution in dpi (dots per inch).
 
-1. Count the number of objects (leaves in this case)
 
-Here, we need to combine `count_objects()` and `plot_measures()` to obtain the identification of each leaf, allowing the further adjustment of the leaf area.
+## Using an object of known area {#objectsize}
 
-```{r leaf5}
-count <- count_objects(leaves, marker = "text")
+- Count the number of objects (leaves in this case)
+
+Here, we use the argument `marker = "id"` of the function `analyze_objects()` to obtain the identification of each object (leaf), allowing for further adjustment of the leaf area.
+
+```{r leaf5, fig.width=10}
+count <- analyze_objects(leaves, marker = "id")
 
 ```
 
+Note that "holes" in some leaves resulted in the segmentation of one leaf in more than one object (e.g., 5, 8, 22, 25, 18, 28). This will not affect the total leaf area, but the area of individual leaves and the average leaf area. This can be solved by either setting the argument `fill_hull = TRUE` or `watershed = FALSE` (To don't implement the watershed-based object segmentation). Let's see how much better we can go.
 
-2. Adjust the leaf area by the area of the known object
+```{r leaf6, fig.width=10}
+count <-
+  analyze_objects(leaves,
+                  marker = "id",
+                  fill_hull = TRUE)
 
-The function `get_measures()` is used to adjust the leaf area using object 6.
+```
 
-```{r leaf6}
-area <- 
-get_measures(count,
-             id = 6,
-             area ~ 4)
+Almost there! Due to the morphology of the leaf composed by objects 2 and 23, it was segmented into two objects. This can be solved by setting the argument `object_size = "large"` that will change the default (medium) values for `tolerance` and `extension` arguments.
+
+```{r leaf7, fig.width=10}
+count <-
+  analyze_objects(leaves,
+                  marker = "id",
+                  fill_hull = TRUE,
+                  object_size = "large")
+
+```
+
+When the objects are not touching each other, the argument `watershed = FALSE` would be a better option.
+
+```{r leaf8, fig.width=10}
+analyze_objects(leaves,
+                watershed = FALSE)
+
+```
+
+And here we are! Now, all leaves were identified correctly, but all measures were given in pixel units. The next step is to convert these measures to metric units.
+
+
+- Convert the leaf area by the area of the known object
+
+The function `get_measures()` is used to adjust the leaf area using object 10, a square with a side of 5 cm (25 cm$^2$).
+
+```{r leaf9, fig.width=10}
+area <-
+  get_measures(count,
+               id = 10,
+               area ~ 25)
 area
 # plot the area to the segmented image
 image_segment(leaves, index = "NB", verbose = FALSE)
-plot_measures(area, measure = "area")
+plot_measures(area,
+              measure = "area",
+              col = "red") # default is "white"
 
-# compute the difference between the two methods
-142.9 -(sum(area$area) - 4)
+
 ```
 
 
-The weakness of computing leaf area with `count_objects()` is that it is needed to first obtain the object identification to know which object (leaf) is the sample with a known area. This object id may change from image to image, especially from images with a different number of leaves. Thus, batch computing is difficult in this case.
+## knowing the image resolution in dpi (dots per inch)
+When the image resolution is known, the measures in pixels obtained with `analyze_objects()` are corrected by the image resolution. The function `dpi()` can be used to compute the dpi of an image, provided that the size of any object is known. See the [dpi](#dpi) section for more details. In this case, the estimated resolution considering the calibration of object 10 was ~50.8 DPIs. We inform this value in the `dpi` argument of `get_measures9)`.
+
+```{r leaf10}
+area2 <- get_measures(count, dpi = 50.8)
+# compute the difference between the two methods
+sum(area$area - area2$area)
+```
 
 
 
-# Disease severity
+## Comparing `pliman` and `LeafArea`
+
+```{r leaf11, eval=FALSE}
+# Find the exact distance of 826 pixels at 100 dpi
+#
+kd <- pixels_to_cm(826, 100)
+kd
+
+# change according to your PC
+directory <- "E:/Desktop/paper_pliman/data/leaf_area/imagej"
+path_imgj <- "C:/Program Files/ImageJ"
+system.time(
+  lfa <-
+    run.ij(path.imagej = path_imgj,
+           set.directory = directory,
+           known.distance = 20.9804, # run.ig has 21 as default.
+           save.image = FALSE,
+           trim.pixel = 0)
+)
+
+# total time: ~10.9 s
+```
+
+
+```{r leaf12, eval=TRUE}
+system.time(
+  plm <-
+    analyze_objects(pattern = "img",   # name pattern
+                    watershed = FALSE,  # don't use watershed segmentation
+                    index = "G",           # index to segment leaf and background
+                    dir_original = "data/leaf_area/imagej",
+                    show_image = FALSE,    # don't show image after processing
+                    parallel = TRUE,       # multiple sections
+                    verbose = FALSE)
+)
+
+# adjust the measures considering 100 dpi (the same as LeafArea)
+area <- get_measures(plm, dpi = 100)
+```
+
+
+```{r leaf13, fig.width=10}
+df_area <- import("./data/leaf_area/leaf_area.xlsx")
+hlt <- c("img90", "img87", "img107")
+df_area <-
+  df_area %>%
+  mutate(res = pliman - leaf_area,
+         label = ifelse(sample %in% hlt, sample, NA))
+
+# compute the Lin's concordance correlation
+df_cor <- df_area[1:150,]
+ccc <-
+  df_cor %>%
+  group_by(background) %>%
+  get_ccc(leaf_area, pliman) %>%
+  mutate(rho = paste0("rho[c]:~", round(pc, 4),
+                      "[(",round(lwr_ci,4), "-",
+                      round(upr_ci,4), ")]" ))
+
+# create the plot
+ggplot(df_area, aes(leaf_area, pliman)) +
+  geom_abline(intercept = 0, slope = 1,
+              linetype = 2) +
+  geom_point(aes(fill = background),
+             shape = 25,
+             size = 3,
+             alpha = 0.6,
+             color = "black",
+             stroke = 0.05,
+             data = subset(df_area, sample %in% hlt)) +
+  geom_point(aes(fill = background),
+             shape = 21,
+             size = 3,
+             alpha = 0.6,
+             color = "black",
+             stroke = 0.05,
+             data = subset(df_area, !sample %in% hlt)) +
+  geom_text_repel(aes(label = label)) +
+  geom_text(aes(label=rho, color = background),
+            show.legend = FALSE,
+            x = c(10, 10),
+            y = c(240, 260),
+            hjust = 0,
+            size = 4,
+            data = ccc,
+            parse = TRUE) +
+  scale_x_continuous(limits = c(0, 275), breaks = seq(0, 275, by = 50)) +
+  scale_y_continuous(limits = c(0, 275), breaks = seq(0, 275, by = 50)) +
+  labs(x = "LeafArea",
+       y = "pliman") +
+  my_theme() +
+  coord_fixed()
+
+ggsave("figs/pliman_leafarea.pdf", width = 4, height = 4)
+```
+
+
+## Variations in the arguments of `analyze_objects()`
+
+Here, I show how to produce the masks shown in Figure 8 of the article, using the image `img90` as an example.
+
+```{r masks}
+img90 <- image_import("img90.jpg",
+                      path = "data/leaf_area/imagej",
+                      plot = TRUE)
+
+# pliman 1
+analyze_objects(img90,
+                index = "G",          # index to segment leaf and background
+                fill_hull = TRUE,     # fill the injuried area
+                show_original = FALSE)# create a mask (not original image)
+
+# pliman 2
+analyze_objects(img90,
+                index = "G",          # index to segment leaf and background
+                fill_hull = FALSE,    # don't fill the injuried area (default)
+                show_original = FALSE)# create a mask (not original image)
+
+# pliman 3
+analyze_objects(img90,
+                index = "G",             # index to segment leaf and background
+                fill_hull = FALSE,       # don't fill the injuried area (default)
+                show_contour = FALSE,    # don't show object contour
+                show_original = TRUE,    # show original object
+                col_background = "black")# black background
+
+# pliman 4
+analyze_objects(img90,
+                index = "G",             # index to segment leaf and background
+                fill_hull = FALSE,       # don't fill the injuried area (default)
+                show_original = FALSE,   # show original object
+                col_background = "black",# black background
+                col_foreground = "green")# green foreground
+
+```
+
+
+
+# Leaf shape
+
+The function `analyze_objects()` computes a range of object features that can be used to study leaf shape. As a motivating example, I will use the image `potato_leaves.png`, that was gathered from Gupta et al. (2020)^[Gupta, S., Rosenthal, D. M., Stinchcombe, J. R., & Baucom, R. S. (2020). The remarkable morphological diversity of leaf shape in sweet potato (*Ipomoea batatas*): the influence of genetics, environment, and G×E. *New Phytologist*, 225(5), 2183–2195. https://doi.org/10.1111/nph.16286]
+
+
+
+```{r potato, fig.width=10}
+potato <- image_import("data/leaf_area/potato_leaves.png", plot = TRUE)
+pot_meas <-
+  analyze_objects(potato,
+                  watershed = FALSE,
+                  marker = "id",
+                  show_chull = TRUE) # shows the convex hull
+print(pot_meas$results)
+```
+
+Three key measures (in pixel units) are:
+
+1. `area` the area of the object.
+2. `area_ch` the area of the convex hull.
+3. `perimeter` the perimeter of the object.
+
+Using these measures, circularity and solidity are computed as shown in (Gupta et al, 2020).
+
+$$ circularity = 4\pi(area / perimeter^2)$$
+
+
+$$solidity = area / area\_ch$$
+
+Circularity is influenced by serrations and lobing. Solidity is sensitive to leaves with deep lobes, or with a distinct petiole, and can be used to distinguish leaves lacking such structures. Unlike circularity, it is not very sensitive to serrations and minor lobings, since the convex hull remains largely unaffected.
+
+
+## Object contour
+
+Users can also obtain the object contour and convex hull as follows:
+
+```{r cont, fig.width=10}
+cont <-
+  object_contour(potato,
+                 watershed = FALSE,
+                 show_image = FALSE)
+plot(potato)
+plot_contour(cont, col = "red", lwd = 3)
+```
+
+## Convex hull
+The function `object_contour()` returns a list with the coordinate points for each object contour that can be further used to obtain the convex hull with `conv_hull()`.
+
+```{r conv, fig.width=10}
+conv <- conv_hull(cont)
+plot(potato)
+plot_contour(conv, col = "red", lwd = 3)
+```
+
+
+## Area of the convex hull
+Then, the area of the convex hull can be obtained with `poly_area()`.
+```{r polyarea}
+(area <- poly_area(conv))
+```
+
+
+## Leaves as `ggplot2` plot
+
+```{r maskpoly, fig.width=10, fig.height=3.5}
+# create a data frame for contour and convex hull
+df_cont <- bind_rows(cont, .id = "object")
+df_conv <- bind_rows(conv, .id = "object")
+
+# create a plot
+ggplot(df_cont, aes(X1, X2, group = object)) +
+  geom_polygon(aes(fill = object)) +
+  geom_polygon(data = df_conv,
+               aes(x, y, fill = object),
+               alpha = 0.3) +
+  theme_void() + 
+  theme(legend.position = "bottom")
+
+```
+
+
+## Simple and compound leaves
+
+A simple leaf blade is undivided. The blade of a compound leaf is divided into several leaflets. In the following examples, I will show how to analyze simple and compound leaves with `analyze_objects()`, mainly if the goal is to obtain the measures for each leaf (e.g., mean area), where the number of objects (leaves) will influence the results.
+
+The following images by [Daniel Saueressig](https://www.florestaombrofilamista.com.br/sidol/?menu=contact) were obtained from the ["*Sistema de Identificação Dendrológica Online - Floresta Ombrófila Mista*"](https://www.florestaombrofilamista.com.br/sidol/?menu=glossary) and show examples of simple and compound leaves.
+
+```{r sc1, fig.width=10}
+imgs <- 
+  image_import(c("simple.jpg", "compound.jpg"),
+               path = "data/leaf_area",
+               plot = TRUE)
+
+```
+
+
+### Simple leaves
+Analyzing non-touching simple leaves is fairly simple. We already saw that the normalized blue index provides satisfactory object segmentation using images with a blue background like in this case. So, the default option (`index = "NB"`) is used. The squares in the background have 4 cm$^2$. With this information, it is possible to obtain the image resolution with `dpi(simple)`, which will be useful to adjust the measures. In this case, the estimated dpi is 48.65.
+
+```{r sc2}
+simple <- imgs$simple.jpg
+sarea <- analyze_objects(simple, marker = "id")
+
+```
+
+Note that with the default settings, the simple leaf was partitioned into small, segmented leaves. As shown in [section 8.1](#objectsize) this can be solved by either using `object_size = "large"` or `watershed = FALSE`, to omit the watershed segmentation algorithm. The last is used here.
+
+
+```{r sc3}
+sarea <- 
+  analyze_objects(simple,
+                  watershed = FALSE,
+                  marker = "id",
+                  show_chull = TRUE)
+sarea_cor <- get_measures(sarea, dpi = 48.65)
+sarea_cor
+```
+
+
+### Compound leaves
+
+For compound leaves, if the watershed segmentation is used, leaflets will probably be considered as different leaves, as can be seen below.
+
+```{r sc4}
+compound <- imgs$compound.jpg
+carea <- 
+  analyze_objects(compound,
+                  show_segmentation = TRUE,
+                  show_contour = FALSE,
+                  marker = "id")
+```
+
+Therefore, using `watershed = FALSE` will solve this problem, since all leaflets connected by at least one pixel will be considered part of the same leaf.
+
+```{r sc5}
+carea <- 
+  analyze_objects(compound,
+                  watershed = FALSE,
+                  show_segmentation = TRUE,
+                  show_contour = FALSE,
+                  show_chull = TRUE,
+                  marker = "id")
+carea_cor <- get_measures(carea, dpi = 49.5)
+carea_cor
+```
+
+
+
+
+
+# Get the RGB values for each object
+
+To obtain the RGB intensity of each image object we use the argument `object_rgb = TRUE` in the function `analyze_objects()`. In this example,
+
+```{r rgb1, fig.width = 10, fig.height=10}
+
+img <- image_import("data/objects_rgb/thetrazolium.jpg")
+
+# identify the index that better segments the image
+a <- image_binary(img, "all")
+
+```
+
+
+The index `HUE2` was chosen to segment the grains from the background. The mean of blue values will be computed by declaring `object_index = "B"`.
+
+```{r rgb2, fig.width = 10, fig.height=10}
+ids <-
+  analyze_objects(img,
+                  index = "HUE2",
+                  object_index = "B",
+                  fill_hull = TRUE,
+                  marker = "id",
+                  marker_col = "black")
+
+```
+
+
+## Plot the index
+Here, I use `image_segment()` and `plot_measures()` to plot the mean of blue values for each object.
+
+```{r rgb3, fig.width = 10, fig.height=8}
+image_segment(img,
+              index = "HUE2",
+              verbose = FALSE)
+plot_measures(ids,
+              measure = "index", # plot the mean of blue values for each object
+              col = "black")
+```
+
+It seems that grains with mean blue values higher than 0.3 present some level of damage. Users can then work with this feature and adapt it to their case.
+
+```{r rgb4}
+length(which(ids$results$index > 0.3))
+```
+
+
+
+## Getting the id for each object
+Knowing the object identification (id) is useful, for example, when correcting the objects' measures by the measure of some object, e.g., with `get_measures()`. To get the object id, we use `object_id()`.
+
+
+```{r objec1}
+img <- image_import(image_pliman("la_leaves.jpg"))
+object_id(img)
+
+```
+
+
+
+## Getting the object coordinates
+Users can get the coordinates for all or desired objects with `object_coord()`. When the `id` argument is set to `NULL` (default), a bounding rectangle is drawn including all the objects. Set `id = "all"` to compute the coordinates for all objects in the image, or use a numeric vector to indicate the objects to compute the coordinates
+
+
+```{r objec2}
+# Get the coordinates for a bounding rectangle around all objects
+object_coord(img)
+
+# Get the coordinates for all objects
+object_coord(img, id = "all")
+
+# Get the coordinates of objects 1 and 3
+object_coord(img, id = c(2, 3))
+```
+
+
+
+## Isolating objects
+
+To isolate objects, the function `object_isolate()` is used. In the following example, I will isolate object 1 and set an edge of 10 pixels around the object.
+
+```{r objec3}
+id1 <- object_isolate(img, id = 1, edge = 10)
+plot(id1)
+```
+
+
+
+
+# Phytopathometry
 ## Single images
 
 ```{r disease1, fig.width=12, fig.height=3}
-# temporary directory
-setwd("data/disease_severity/soybean")
-
+# set the path directory
+path_soy <- "data/disease_severity/soybean"
 # import images
-img <- image_import("sev_leaf.jpg")
-healthy <- image_import("sev_healthy.jpg")
-symptoms <- image_import("sev_sympt.jpg")
-background <- image_import("sev_back.jpg")
+img <- image_import("leaf.jpg", path = path_soy)
+healthy <- image_import("healthy.jpg", path = path_soy)
+symptoms <- image_import("sympt.jpg", path = path_soy)
+background <- image_import("back.jpg", path = path_soy)
 image_combine(img, healthy, symptoms, background, ncol = 4)
 
+
+```
+
+## Image palettes
+Sample palettes can be made by simply manually sampling small areas of representative images and producing a composite image that will represent each of the desired classes (background, healthy, and symptomatic tissues). Another way is to use the `image_palette()` function to create sample color palettes
+
+```{r}
+pals <- image_palette(img, npal = 8)
+image_combine(pals, ncol = 4)
 ```
 
 ```{r disease2, fig.width=10, fig.height=5}
 # default settings
-res <- 
-symptomatic_area(img = img,
-                 img_healthy = healthy,
-                 img_symptoms = symptoms,
-                 img_background = background,
-                 save_image = TRUE,
-                 dir_processed = "data/disease_severity/soybean_rust/single")
+res <-
+  measure_disease(img = img,
+                  img_healthy = healthy,
+                  img_symptoms = symptoms,
+                  img_background = background,
+                  save_image = TRUE,
+                  dir_processed = "data/disease_severity/soybean_rust/single")
 
 # create a personalized mask
-symptomatic_area(img = img,
-                 img_healthy = healthy,
-                 img_symptoms = symptoms,
-                 img_background = background,
-                 save_image = TRUE,
-                 show_original = FALSE,
-                 col_background = "black",
-                 dir_processed = "data/disease_severity/soybean_rust/single2")
+measure_disease(img = img,
+                img_healthy = healthy,
+                img_symptoms = symptoms,
+                img_background = background,
+                save_image = TRUE,
+                show_original = FALSE,
+                dir_processed = "data/disease_severity/soybean_rust/single2")
 
 # import generated masks
 mask <- image_import("data/disease_severity/soybean_rust/single/proc_img.jpg")
@@ -367,157 +1584,460 @@ image_combine(img, mask, mask2, ncol = 3)
 
 
 
-## Batch processing
-### leaf images
+## Variations in image palettes
+In the following example, I show a second example with a variation in the color palettes, where only the necrotic area is assumed to be the diseased tissue. Therefore, the symptomatic area will be smaller than the previous one.
 
-Fifty soybean leaves previously processed in QUANT software were used. The images were retrieved from https://osf.io/4hbr6, a Plant Disease Severity Annotation Image Database. Thanks to [Emerson M. Del Ponte](https://osf.io/jb6yd/) and his collaborators for keeping this important project publicly available.
+```{r disease3, fig.width=10}
 
-```{r batch1, fig.width=10, fig.height=20}
-# temporary directory
-setwd("data/disease_severity/soybean_rust")
-soy_leaves <- image_import(img_pattern = "1")
-image_combine(soy_leaves, ncol = 5)
+# set the path directory
+path_soy <- "data/disease_severity/soybean"
+# import images
+healthy2 <- image_import("healthy2.jpg", path = path_soy)
+symptoms2 <- image_import("sympt2.jpg", path = path_soy)
+background2 <- image_import("back2.jpg", path = path_soy)
+image_combine(healthy2, symptoms2, background2, ncol = 3)
+img2 <- img
+res <-
+  measure_disease(img = img2,
+                  img_healthy = healthy2,
+                  img_symptoms = symptoms2,
+                  img_background = background2,
+                  show_image = TRUE,
+                  contour_col = "black",
+                  save_image = TRUE,
+                  prefix = "proc2_",
+                  dir_processed = "data/disease_severity/soybean_rust/single")
+res$severity
 
+
+imgs_pal <-
+  image_import(c("proc_img.jpg", "proc2_img.jpg"),
+               path = "data/disease_severity/soybean_rust/single")
+image_combine(imgs_pal)
 ```
 
 
-### Severity measurement
+## Batch processing
+Fifty soybean leaves and 19 bean leaves previously processed in APS Assess software were used. The soybean images were retrieved from https://osf.io/4hbr6, a Plant Disease Severity Annotation Image Database. Thanks to [Emerson M. Del Ponte](https://osf.io/jb6yd/) and his collaborators for keeping this important project publicly available.
+
+### Soybean rust
+#### Using sample palettes
+* Soybean leaves to be processed
+```{r batch, fig.width=10, fig.height=20}
+# image directory
+path_soy <- "E:/Desktop/paper_pliman/data/disease_severity/soybean_rust"
+soy_leaves <- image_import(pattern = "soy", path = path_soy)
+image_combine(soy_leaves, ncol = 5)
+```
+
+
+* Image palettes with the different pixel classes
+
+```{r batch1}
+# image directory
+path_soy <- "E:/Desktop/paper_pliman/data/disease_severity/soybean_rust"
+soy_palettes <-
+  image_import(image = c("back.png", "disease.png", "health.png"),
+               path = path_soy)
+image_combine(soy_palettes, ncol = 3)
+```
+
 
 
 ```{r batch2}
 system.time(
-soy_rust <-
-  symptomatic_area(img_pattern = "1",
-                   img_symptoms = "soy_rust",
-                   img_healthy = "soy_leaf",
-                   img_background = "soy_bg",
-                   dir_original = "data/disease_severity/soybean_rust",
-                   dir_processed = "data/disease_severity/soybean_rust/processed",
-                   save_image = TRUE,
-                   show_image = FALSE,
-                   parallel = TRUE)
+  soy_rust <-
+    measure_disease(pattern = "soy_",
+                    img_symptoms = "disease",
+                    img_healthy = "health",
+                    img_background = "back",
+                    dir_original = "data/disease_severity/soybean_rust",
+                    dir_processed = "data/disease_severity/soybean_rust/processed",
+                    show_contour = FALSE,
+                    parallel = TRUE)
 )
-soy_rust
+soy_rust$severity
 ```
 
 
-### Processed images
 
 ```{r batch3, fig.width=10, fig.height=20}
-# temporary directory
-setwd("data/disease_severity/soybean_rust/processed")
-soy_leaves <- image_import(img_pattern = "proc")
-image_combine(soy_leaves, ncol = 5)
+# image directory
+path_soy_proc <- "E:/Desktop/paper_pliman/data/disease_severity/soybean_rust/processed"
+soy_proc <- image_import(pattern = "proc", path = path_soy_proc)
+image_combine(soy_proc, ncol = 5)
 
+```
+
+
+
+
+#### Using an RGB-based index
+Another way to compute the diased area is by using an RGB-based phenotyping^[https://link.springer.com/article/10.1007/s40858-021-00448-y]. The first step is to find a suitable index for disease segmentation.
+```{r fig.width=10, fig.height=10}
+img <- image_import("soy_1.jpg", path = path_soy, plot = TRUE)
+
+# find a suitable index to segment disease and healthy tissues
+image_segment(img, index = "all")
+
+```
+
+The NGRDI (Normalized green red difference index) computed as $G-R/G+R$ seems to segment lesions from healthy areas satisfactorily. Next, I `plot()` the output of `image_index()` to find a suitable threshold.
+
+
+```{r}
+# Find a threshold
+img_ind <- image_index(img, index = "NGRDI", show_image = FALSE)
+plot(img_ind)
+```
+
+A threshold of `0` has been chosen. So, the next step is to use the function `measure_disease()` now. In this approach, color palettes are not informed. Instead, the user needs to declare two other arguments: `index_lb` to segment leaf from the background and `index_dh` to segment diseased from healthy tissues.
+
+
+```{r}
+system.time(
+  soy_rust2 <-
+    measure_disease(pattern = "soy_",
+                    index_lb = "G", # segment leaf from background
+                    index_dh = "NGRDI", # segment diseased from healthy tissues
+                    threshold = 0,
+                    dir_original = "data/disease_severity/soybean_rust",
+                    show_image = FALSE,
+                    parallel = TRUE)
+)
+
+```
+
+
+```{r eval=FALSE, echo=FALSE}
+df_pal <-
+  soy_rust$severity %>%
+  select(-healthy) %>%
+  rename(palettes = symptomatic)
+df_rgb <-
+  soy_rust2$severity %>%
+  select(-healthy) %>%
+  rename(rgb = symptomatic)
+
+df_soy <-
+  left_join(df_pal, df_rgb) %>%
+  mutate(disease = "Soybean rust")
+```
+
+
+
+
+
+### Bean angular spot
+#### Using sample palettes
+```{r batch4, fig.width=10, fig.height=10}
+# image directory
+path_bean <- "E:/Desktop/paper_pliman/data/disease_severity/bean_spot"
+bean_leaves <- image_import(pattern = "bean", path = path_bean)
+image_combine(bean_leaves, ncol = 5)
+
+```
+
+
+
+
+```{r batch5}
+system.time(
+  bean_spot <-
+    measure_disease(pattern = "bean",
+                    img_symptoms = "disease",
+                    img_healthy = "health",
+                    img_background = "back",
+                    dir_original = "data/disease_severity/bean_spot",
+                    dir_processed = "data/disease_severity/bean_spot/processed",
+                    save_image = TRUE,
+                    show_contour = FALSE,
+                    parallel = TRUE)
+)
+bean_spot$severity
+```
+
+
+
+```{r batch6, fig.width=10, fig.height=10}
+# image directory
+path_bean_proc <- "E:/Desktop/paper_pliman/data/disease_severity/bean_spot/processed"
+bean_proc <- image_import(pattern = "proc", path = path_bean_proc)
+image_combine(bean_proc, ncol = 5)
+
+```
+
+
+
+#### Using an RGB-based index
+
+```{r beanleaf, fig.width=10, fig.height=10}
+img_bean <- image_import("bean_F3.jpg", path = path_bean, plot = TRUE)
 
 
 
 ```
+
+
+First, we need to choose an index to segment the leaf from the background. The `image_segment()` function is used again.
+
+```{r segbean2, fig.width=10, fig.height=10}
+image_segment(img_bean, index = "all")
+
+```
+
+Let's try to use the `NB` index to segment the leaf and background, and the `NGRDI` again to segment lesion and heathy tissues.
+
+
+
+```{r segiter, fig.width=10}
+
+seg <-
+  image_segment_iter(img_bean,
+                     index = c("NB", "NGRDI"),
+                     nseg = 2,
+                     ncol = 3)
+```
+
+
+
+```{r segthresh}
+# Find a threshold
+img_ind <- image_index(seg$images$seg1,
+                       index = "NGRDI",
+                       resize = FALSE,
+                       show_image = FALSE)
+plot(img_ind)
+```
+
+
+
+```{r}
+system.time(
+  bean_spot2 <-
+    measure_disease(pattern = "bean",
+                    index_lb = "NB",
+                    index_dh = "NGRDI",
+                    threshold = 0,
+                    dir_original = "data/disease_severity/bean_spot",
+                    show_image = FALSE,
+                    parallel = TRUE)
+)
+
+
+```
+
+
+
+
+```{r eval=FALSE, echo=FALSE}
+df_pal2 <-
+  bean_spot$severity %>%
+  select(-healthy) %>%
+  rename(palettes = symptomatic)
+df_rgb2 <-
+  bean_spot2$severity %>%
+  select(-healthy) %>%
+  rename(rgb = symptomatic)
+
+df_bean <- left_join(df_pal2, df_rgb2) %>%
+  mutate(disease = "Bean angular spot")
+df_sev <- rbind(df_soy, df_bean)
+```
+
+
+
+
+
 
 
 ## Concordance correlation coefficient
 
 ```{r corcordance}
-bind <- import("data/disease_severity/soybean_rust/data_quant_pliman.xlsx")
-concordance <- CCC(bind$Quant, bind$pliman)
-concordance$rho.c
+disease <- import("data/disease_severity/disease.xlsx")
+
+
+ggpairs(disease,
+        legend = 1,
+        aes(color = disease, fill = disease),
+        axisLabels = "none",
+        columns = c("Assess", "palettes", "RGB"),
+        lower = list(continuous = custom_smoth),
+        upper = list(continuous = custom_ccc),
+        diag = list(continuous = wrap("densityDiag",
+                                      alpha =  0.7,
+                                      size = 0.2,
+                                      color = "black"))) +
+  my_theme()
+ggsave("figs/disease_severity.pdf", width = 5, height = 5)
+```
+
+## Lesion features
+In this example, I will use a sample of leaf with symptoms of soybean rust (*Phakopsora pachyrhizi*).
+
+```{r}
+
+lesion <-
+  image_import("data/disease_severity/soybean_rust/rust.png",
+               plot = TRUE)
+
 ```
 
 
-# Count objects
-## Images
-```{r count_imgs, fig.width=10, fig.height=11}
-imgs <- list(
-been_blue = image_import("data/count_objects/been_blue/IMG_1254.jpg"),
-been_white = image_import("data/count_objects/been_white/IMG_1192.jpg"),
-soy_blue = image_import("data/count_objects/soy_blue/IMG_1266.jpg"),
-soy_white = image_import("data/count_objects/soy_white/IMG_1178.jpg"),
-wheat_blue = image_import("data/count_objects/wheat_blue/IMG_1280.jpg"),
-wheat_white = image_import("data/count_objects/wheat_white/IMG_1158.jpg")
-)
-image_combine(imgs, ncol = 2)
+Here, an RGB-based indexe will be used to segment the diseased and healthy tissues. The first step is to choose an appropriate index.
+
+```{r, fig.width=10}
+image_segment(lesion, index = "all")
+```
+
+Both `"NGRDI"` and `"VARI"` provided satisfactory segmentation. So, the `"NGRDI"` will be chosen. The next step is to use the function `measure_disease()` with the argument `index_dh`. Note that `index_lb` is not mandatory and will not be used here, since the image has no background.
+
+
+```{r, fig.width=10}
+les <-
+  measure_disease(lesion,
+                  index_dh = "NGRDI")
+les$severity
+```
+
+The results show satisfactory results. All lesions were identified and the severity, in this case, was ~14%.
+
+By default, Otsu's thresholding method is used. Bellow, we can see which was the threshold value used in the segmentation.
+
+```{r}
+index_lesion <- image_index(lesion,
+                            index = "NGRDI",
+                            resize = FALSE,
+                            show_image = FALSE)
+EBImage::otsu(index_lesion$NGRDI, range = range(index_lesion$NGRDI))
+```
+
+Users can set the argument `threshold` in order to provide more reliable segmentations. If any non-numeric value different than `"Otsu"` is provided in the `threshold` argument, an iterative section will be open so that users can choose a threshold value. In this case, I will simply plot the index computed above.
+
+```{r}
+plot(index_lesion)
+```
+
+In this example, negative values of `NGRDI` are attributed to diseased tissues and positive to healthy tissues. Let's see how the results (both for severity and number of lesions) change when the `threshold` argument is used. To do that, the arguments `watershed = TRUE`(implement the watershed segmentation algorithm) and `show_features = TRUE` (compute lesions' features) will be used.
+
+```{r, fig.width=10}
+les2 <-
+  measure_disease(lesion,
+                  index_dh = "NGRDI",
+                  threshold = 0.1,
+                  watershed = TRUE,
+                  show_features = TRUE)
+les2$severity
+les2$statistics
 ```
 
 
-## Concordance
 
-```{r count1}
-validation <- import("data/count_objects/count_data.xlsx")
-validation
-# helper function to compute the concordance correlation coefficient
-get_ccc <- function(df, real, predicted){
-  real <- pull(df, {{real}})
-  predicted <- pull(df, {{predicted}})
-  CCC(real, predicted)$rho.c
-}
-### overall concordance
-get_ccc(validation, REAL, PREDICTED)
-### concordance by crop, resolution and background color
-validation %>% 
-  group_by(RESOLUTION, CROP, BACKGROUND) %>% 
-  do(get_ccc(., REAL, PREDICTED))
-### identity line
-ggplot(validation, aes(REAL, PREDICTED))+
-  geom_point(aes(color = factor(CROP))) +
-  geom_smooth(method = "lm", se = FALSE) +
-  geom_abline(intercept = 0 , slope = 1, linetype = 2) +
-  facet_grid(BACKGROUND ~ RESOLUTION) +
-  labs(x = "Actual number of grains",
-       y = "Counted number of grains") +
-  theme(legend.position = "bottom",
-        legend.title = element_blank(),
-        axis.ticks.length = unit(0.2, "cm"),
-        panel.grid.minor = element_blank(),
-        panel.spacing = unit(0.2, "cm"),
-        axis.text = element_text(color = "black", size = 12),
-        axis.title = element_text(color = "black", size = 12))+
-  coord_fixed() +
-  scale_x_continuous(limits = c(0, 110),
-                     breaks = seq(0, 110, by = 25)) +
-  scale_y_continuous(limits = c(0, 110),
-                     breaks = seq(0, 110, by = 25))
 
-```
-
-# RGB for each image objects
-
-```{r rgb1, fig.width = 10, fig.height=10}
-
-img <- image_import("data/objects_rgb/thetrazolium.jpg")
-
-# identify the index that better segments the image
-image_segment(img, index = "all", ncol = 4)
+```{r, fig.width=10}
+les3 <-
+  measure_disease(lesion,
+                  index_dh = "NGRDI",
+                  threshold = -0.1,
+                  watershed = TRUE,
+                  show_features = TRUE)
+les3$severity
+les3$statistics
 ```
 
 
-## Get the RGB values for each object
 
-The index `NB` was chosen to segment the grains from the background. The mean of blue values will be computed by declaring `object_index = "B"`.
+## Benchmarking
 
-```{r rgb2, fig.width = 10, fig.height=10}
-ids <- 
-  objects_rgb(img, 
-              index = "NB", # (default) used to segment objects from background
-              object_index = "B", # Show the mean of blue values for each object
-              object_size = "elarge")
-plot(ids)
+```{r benchmarking2, fig.width=10}
+
+bench <- import("data/disease_severity/time.xlsx")
+
+
+ggplot(bench, aes(resolution, avg, fill = strategy)) +
+  geom_col(position =  position_dodge(width = 0.9)) +
+  # facet_wrap(~resolution) +
+  scale_y_continuous(expand = expansion(c(0.05, 0.1))) +
+  geom_text(aes(label = round(avg, 2)),
+            position = position_dodge(width = 0.9),
+            vjust = -0.5,
+            hjust = 0.5,
+            size = 3) +
+  my_theme() +
+  labs(x = "Filter",
+       y = expression(Processing~time~(s~image^{-1})))
+ggsave("figs/benchmarking_sev.pdf", width = 4, height = 4.5)
 ```
 
 
-## plot the index 
-Here, I use `image_segment()` and `plot_measures()` to plot the mean of blue values for each object.
+## Challenges
 
-```{r rgb3, fig.width = 10, fig.height=8}
-image_segment(img,
-              index = "NB",
-              verbose = FALSE)
-plot_measures(ids,
-              measure = "index", # plot the mean of blue values for each object
-              col = "black")
+### low-contrasting lesions
+
+
+```{r challenge1, fig.width=10}
+path_challenge <- "data/disease_severity/challenges"
+pepper <- image_import("pepper.png",
+                       path = path_challenge,
+                       plot = TRUE)
+image_index(pepper, index = "all", resize = FALSE)
 ```
 
-It seems that grains with mean blue values higher than 0.3 present some level of damage. Users can then work with this feature and adapt it to their case.
 
-```{r rgb4}
-length(which(ids$indexes$index > 0.3))
+### Complex backgrounds
+Segmenting the leaf from complex backgrounds is a challenge In the following example, a maize leaf needs to be segmented from the background that contains both green leaves (similar to leaf) and soil (similar to the disease).
+
+```{r challenge2, fig.width=10}
+img <- 
+  image_import("maize_1.png",
+               path = path_challenge,
+               plot = TRUE)
+
+image_segment(img, index = "all")
 ```
+
+
+In the following example, the background have similar color than the midrib. In this case, cropping the image so that the background is removed would solve the issue.
+
+```{r challenge3, fig.width=10}
+
+img2 <- 
+  image_import("maize_2.png",
+               path = path_challenge,
+               plot = TRUE)
+
+
+image_segment(img2, index = "all")
+
+
+
+# crop the image to isolate the background
+img2_crop <- image_crop(img2,
+                   width = 959:32,
+                   height = 163:557,
+                   plot = TRUE)
+
+image_segment(img2_crop)
+
+
+# use the NR index and invert the segmentation to isolate the diseased tissues
+measure_disease(img2_crop, 
+                index_dh = "NR",
+                invert = TRUE)
+
+```
+
+
+In the following image gathered from Barbedo (2016)^[Barbedo, J. G. A. (2016). A review on the main challenges in automatic plant disease identification based on visible range images. Biosystems Engineering, 144, 52–60. doi:10.1016/J.BIOSYSTEMSENG.2016.01.017] is shown an example of an image containing specular reflections and several light/shadow transitions. Segmenting the leaf, in this case, is very difficult.
+
+```{r challenge4, fig.width=10}
+
+img3 <- 
+  image_import("maize.jpg",
+               path = path_challenge,
+               plot = TRUE)
+image_segment(img3, index = "all")
+
+```
+
+
