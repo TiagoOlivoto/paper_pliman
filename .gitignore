@@ -7,3 +7,7 @@ code_cache
 *.pptx
 data/disease_severity/soybean_rust/soy_severity.R
 .RDataTmp
+code_files
+MEE-21-06-465_Proof_hi.pdf
+reviewer_comments.docx
+texto_pliman_jprbras.docx
