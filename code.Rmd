@@ -415,7 +415,7 @@ image_segment(soy,
 The function `image_segment_iter()` provides an iterative image segmentation, returning the proportions of segmented pixels. This is useful when more than one segmentation procedure is needed. Users can choose how many segmentation perform, using the argument `nseg`.
 
 ```{r segmentation5}
-seg_iter <- image_import(image_pliman("sev_leaf_nb.jpg"), plot = TRUE)
+seg_iter <- image_pliman("sev_leaf_nb.jpg", plot = TRUE)
 
 ```
 
@@ -1494,7 +1494,7 @@ Knowing the object identification (id) is useful, for example, when correcting t
 
 
 ```{r objec1}
-img <- image_import(image_pliman("la_leaves.jpg"))
+img <- image_pliman("la_leaves.jpg")
 object_id(img)
 
 ```
