@@ -1,27 +1,30 @@
 name: pliman_paper
 output_dir: docs
-exclude: ["*.docx", "*.pptx"]
+exclude: ["*.docx", "*.pptx", "*.pdf", "*.R"]
 output:
-  html_document:
-    code_download: true
-    theme: paper
-    css: my-style.css
-    df_print: paged
+  rmdformats::readthedown:
+    use_bookdown: true
     number_sections: true
-    toc: yes
-    toc_float:
-      toc_collapsed: true
-    lib_dir: site_libs
+    highlight: tango
+    df_print: paged
+    lightbox: true
+    gallery: true
 navbar:
-  title: Supporting material for pliman's paper
+  title: Lights, camera, pliman!
   left:
   - text: About
     icon: fa fa-home
     href: index.html
-  - text: Analysis 
+  - text: "Analysis" 
     icon: fa fa-file-code-o
     href: code.html
+  - text: "Code and data"
+    icon: fa fa-download
+    href: https://github.com/TiagoOlivoto/paper_tpp/archive/refs/heads/main.zip
+  - text: "Doi"
+    icon: ai ai-doi
+    href: https://github.com/TiagoOlivoto/paper_tpp/archive/refs/heads/main.zip
   right:
   - text: Source
-    icon: fa-github-square
+    icon: fa-github-square fa-2x
     href: https://github.com/TiagoOlivoto/paper_pliman

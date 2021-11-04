@@ -3,15 +3,21 @@
 # About
 In this website are available the codes used to reproduce the analysis and results of the paper describing the pliman R package
 
-<img src = "figs/logo_pliman.jpg" width = 200px align = right>  `pliman` (**pl**ant **im**age **an**alysis) is designed to analyze plant images, especially related to leaf analysis. You provide color palettes, tell `pliman` what each one represents, and it takes care of the details. Image indexes can also be used to segment images. The package will help you to:
+<img src = "figs/logo_pliman.jpg" width = 200px align = right>  `pliman` (**pl**ant **im**age **an**alysis) is designed to analyze plant images, especially related to leaf and grains.  The package will help you to:
 
-* Measure leaf area with `leaf_area()`
-* Measure disease severity with `symptomatic_area()`
-* Count the number of lesions with `count_lesions()`
-* Count objects in an image with `count_objects()`
-* Get the RGB values for each object in an image with `objects_rgb()`
-* Get object measures with `get_measures()`
-* Plot object measures with `plot_measures()`
+* Measure leaf area;
+* Measure disease severity;
+* Count the number of lesions;
+* Obtain the shape of lesions;
+* Produce Standard Area Diagrams;
+* Count objects in an image;
+* Get object features (area, perimeter, radius, circularity, eccentricity, solidity);
+* Get the RGB values for each object in an image;
+* Get the object coordinates;
+* Get the object contours;
+* Get convex hulls;
+* Isolate objects;
+* Plot object measures.
 
 `pliman` also provides useful functions for [operation](https://tiagoolivoto.github.io/pliman/reference/image_combine.html), [transformation](https://tiagoolivoto.github.io/pliman/reference/utils_transform.html), and [segmentation](https://tiagoolivoto.github.io/pliman/reference/image_binary.html) of images. Please, visit the [Examples](https://tiagoolivoto.github.io/pliman/index.html) page in `pliman` website for a detailed documentation of each function.
 
@@ -27,10 +33,15 @@ git clone https://github.com/TiagoOlivoto/paper_pliman.git
 ```
 
 
-An alternative way is by downloading the [ZIP file](https://github.com/TiagoOlivoto/paper_pliman/archive/refs/heads/master.zip) containing the codes. 
+An alternative way is by downloading the [ZIP file](https://github.com/TiagoOlivoto/paper_pliman/archive/refs/heads/master.zip) containing the scripts and all needed images ()
 
 * Reproducing
    - Open the `code.Rmd` file in RStudio.
    - Optionally change functions and arguments.
    - Knit the document to see the results.
 
+<!-- inicio academic icons -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+<!-- final academic icons -->
+<!-- inicio font awesome -->
+<script src="https://kit.fontawesome.com/1f72d6921a.js" crossorigin="anonymous"></script>
