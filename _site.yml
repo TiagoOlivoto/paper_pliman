@@ -1,6 +1,6 @@
 name: pliman_paper
 output_dir: docs
-exclude: ["*.docx", "*.pptx", "*.pdf", "*.R"]
+exclude: ["*.docx", "*.pptx", "*.pdf", "*.R", "*.tmp"]
 output:
   rmdformats::readthedown:
     use_bookdown: true
@@ -26,5 +26,5 @@ navbar:
     href: https://github.com/TiagoOlivoto/paper_tpp/archive/refs/heads/main.zip
   right:
   - text: Source
-    icon: fa-github-square fa-2x
+    icon: fa-github-square
     href: https://github.com/TiagoOlivoto/paper_pliman
