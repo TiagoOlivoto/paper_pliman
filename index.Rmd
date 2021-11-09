@@ -33,7 +33,7 @@ git clone https://github.com/TiagoOlivoto/paper_pliman.git
 ```
 
 
-An alternative way is by downloading the [ZIP file](https://github.com/TiagoOlivoto/paper_pliman/archive/refs/heads/master.zip) containing the scripts and all needed images ()
+An alternative way is by downloading the [ZIP file](https://github.com/TiagoOlivoto/paper_pliman/archive/refs/heads/master.zip) containing the scripts and all needed images (~365 MB)
 
 * Reproducing
    - Open the `code.Rmd` file in RStudio.
