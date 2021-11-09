@@ -3,6 +3,7 @@ output_dir: docs
 exclude: ["*.docx", "*.pptx", "*.pdf", "*.R", "*.tmp"]
 output:
   rmdformats::readthedown:
+    toc_depth: 3
     use_bookdown: true
     number_sections: true
     highlight: tango

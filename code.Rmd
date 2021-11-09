@@ -375,7 +375,7 @@ Both functions segment the image based on the value of some image index, which m
 
 
 
-Here, I use the argument `index"` to test the segmentation based on the RGB and their normalized values. Users can also provide their own index with the argument `my_index`.
+Here, I use the argument `index"` to test the segmentation based on the RGB and their normalized values. Users can also provide their index with the argument `my_index`.
 
 ```{r segmentation1 }
 soy <- image_import("./data/segmentation/seg_medium.jpg", plot = TRUE)
@@ -417,7 +417,7 @@ image_segment(soy,
 
 ## Iterative segmentation
 
-The function `image_segment_iter()` provides an iterative image segmentation, returning the proportions of segmented pixels. This is useful when more than one segmentation procedure is needed. Users can choose how many segmentation perform, using the argument `nseg`.
+The function `image_segment_iter()` provides an iterative image segmentation, returning the proportions of segmented pixels. This is useful when more than one segmentation procedure is needed. Users can choose how many segmentation to perform, using the argument `nseg`.
 
 ```{r segmentation5}
 seg_iter <- image_pliman("sev_leaf_nb.jpg", plot = TRUE)
@@ -441,7 +441,7 @@ seg2 <-
 
 ```
 
-Note that the same results can be obtainet with `image_segment_iter()` using an iterative section.
+Note that the same results can be obtained with `image_segment_iter()` using an iterative section.
 
 ```{r segmentation7, eval=FALSE}
 # Only run iteratively
@@ -461,7 +461,7 @@ image_segment_iter(seg_iter,
 
 It can be observed that 30.28% of the original image were characterized as symptoms (both necrosis and chlorosis). Of out this (symptomatic area), 25.92% are necrotic areas. So 7.85% of the total area were considered as necrotic areas (30.288 $\times$ 0.2592 or 103464/1317600 $\times$ 100) and 22.43% (30.28 - 7.85 or (399075 - 103464) / 1317600 $\times$ 100) were considered as chlorotic areas.
 
-Users can use the argument `threshold` to controls how segmentation is made. By default (`threshold = "Otsu"`), a threshold value based on Otsu's method is used to reduce the grayscale image to a binary image.   If a numeric value is informed, this value will be used as a threshold. Inform any non-numeric value different than `"Otsu"` to iteratively chosen the threshold based on a raster plot showing pixel intensity of the index. For `image_segmentation_iter()`, a vector (allows a mixed (numeric and character) type) with the same length of `nseg` can be used.
+Users can use the argument `threshold` to control how segmentation is made. By default (`threshold = "Otsu"`), a threshold value based on Otsu's method is used to reduce the grayscale image to a binary image.   If a numeric value is informed, this value will be used as a threshold. Inform any non-numeric value different than `"Otsu"` to iteratively choose the threshold based on a raster plot showing pixel intensity of the index. For `image_segmentation_iter()`, a vector (allows a mixed (numeric and character) type) with the same length of `nseg` can be used.
 
 ```{r segmentation9, fig.width=10}
 seg_iter1 <-
@@ -1214,7 +1214,7 @@ plot_mass(cm,
 
 # Root length
 
-In the following example, I show how to measure the root lenght of soybean seedlings. The images were gathered from Silva et al. 2019 ^[Silva LJ da, Medeiros AD de, Oliveira AMS (2019) SeedCalc, a new automated R software tool for germination and seedling length data processing. J Seed Sci 41:250–257. https://doi.org/10.1590/2317-1545V42N2217267].
+In the following example, I show how to measure the root length of soybean seedlings. The images were gathered from Silva et al. 2019 ^[Silva LJ da, Medeiros AD de, Oliveira AMS (2019) SeedCalc, a new automated R software tool for germination and seedling length data processing. J Seed Sci 41:250–257. https://doi.org/10.1590/2317-1545V42N2217267].
 
 
 
@@ -1228,7 +1228,7 @@ r1 <- roots[[1]]
 
 
 
-To measure the root lenght, first we will ned to segment the root. Let's start choosing an index to segment the seedlings from background
+To measure the root length, first, we will ned to segment the root. Let's start choosing an index to segment the seedlings from the background
 
 ```{r root1, fig.width=10}
 image_binary(r1, index = "all")
@@ -1287,9 +1287,7 @@ r1_meas_cor <- get_measures(r1_meas, dpi = 150)
 r1_meas_cor
 ```
 
-In this case, the root lenght can be estimated by the `diam_max`, which is the maximum diameter of the object.
-
-
+In this case, the root length can be estimated by the `diam_max`, which is the maximum diameter of the object.
 
 ```{r root7, fig.width=10, fig.height=4}
 plot(r1)
@@ -1568,7 +1566,7 @@ image_combine(variations, col = "red")
 
 # Leaf shape
 
-The function `analyze_objects()` computes a range of object features that can be used to study leaf shape. As a motivating example, I will use the image `potato_leaves.png`, that was gathered from Gupta et al. (2020)^[Gupta, S., Rosenthal, D. M., Stinchcombe, J. R., & Baucom, R. S. (2020). The remarkable morphological diversity of leaf shape in sweet potato (*Ipomoea batatas*): the influence of genetics, environment, and G×E. *New Phytologist*, 225(5), 2183–2195. https://doi.org/10.1111/nph.16286]
+The function `analyze_objects()` computes a range of object features that can be used to study leaf shape. As a motivating example, I will use the image `potato_leaves.png`, which was gathered from Gupta et al. (2020)^[Gupta, S., Rosenthal, D. M., Stinchcombe, J. R., & Baucom, R. S. (2020). The remarkable morphological diversity of leaf shape in sweet potato (*Ipomoea batatas*): the influence of genetics, environment, and G×E. *New Phytologist*, 225(5), 2183–2195. https://doi.org/10.1111/nph.16286]
 
 
 
@@ -1584,9 +1582,9 @@ pot_meas$results
 
 Three key measures (in pixel units) are:
 
-1. `area` the area of the object.
-2. `area_ch` the area of the convex hull.
-3. `perimeter` the perimeter of the object.
+1. `area` is the area of the object.
+2. `area_ch` is the area of the convex hull.
+3. `perimeter` is the perimeter of the object.
 
 Using these measures, circularity and solidity are computed as shown in (Gupta et al, 2020).
 
@@ -1719,7 +1717,7 @@ carea_cor
 
 If users need to analyze several images of the same sample the images of the same sample should share the same filename prefix, which is defined as the part of the filename preceding the first hyphen (`-`) or underscore (`_`). Then, when using `get_measures()`, the measures of leaf images named, for example, `F1-1.jpeg`, `F1_2.jpeg`, and `F1-3.jpeg` will be combined into a single image (`F1`), shown in the `merge` object. This is useful, for example, to analyze large leaves that need to be split into multiple images, or several leaves belonging to the same sample that cannot be scanned in a unique image.
 
-In the following example, five images will be used as a motivating examples. Each image has leaves from different species. The images were split into different images sharing the same prefix (e.g., L1_\*, L2_\*, and so on). Note that to ensure that all images are processed, all images must share a common pattern, in this case ("L"). The three points at the right-bottom corner have a known distance of 5 cm between them, which can be used to extract the image dpi with `dpi()`. Just for teaching purposes, I will consider that all the images have a resolution of 100 dpi.
+In the following example, five images will be used as motivating examples. Each image has leaves from different species. The images were split into different images sharing the same prefix (e.g., L1_\*, L2_\*, and so on). Note that to ensure that all images are processed, all images must share a common pattern, in this case ("L"). The three points at the right-bottom corner have a known distance of 5 cm between them, which can be used to extract the image dpi with `dpi()`. Just for teaching purposes, I will consider that all the images have a resolution of 100 dpi.
 
 
 ```{r merge0, fig.width=10, fig.height=10}
@@ -1759,7 +1757,7 @@ merged_cor <- get_measures(merged, dpi = 100)
 
 Note that the `merged_cor` is a list with three objects
 
-* `results`: a data frame that contains the measures for each individual object (in this case leaf) of each analyzed image.
+* `results`: a data frame that contains the measures for each object (in this case leaf) of each analyzed image.
 
 ```{r merge3}
 merged_cor$results
@@ -1800,7 +1798,7 @@ whole_cor$summary
 
 
 
-## Area and solilidity for different species
+## Area and solidity for different species
 
 ```{r merge8, fig.width=10, fig.height=6}
 # isolate the object 2 of each leaf
@@ -2118,11 +2116,11 @@ image_combine(soy_proc, ncol = 5)
 
 #### Standard Area Diagrams
 
-Standard area diagrams (SAD) have long been used as a tool to aid the estimation of plant disease severity, serving as a standard reference template prior to or during the assessments.
+Standard area diagrams (SAD) have long been used as a tool to aid the estimation of plant disease severity, serving as a standard reference template before or during the assessments.
 
 Given an object computed with `measure_disease()` a Standard Area Diagram (SAD) with `n` images containing the respective severity values are obtained with `sad()`.
 
-Leaves with the smallest and highest severity will always be in the SAD. If `n = 1`, the leaf with the smallest severity will be returned. The others are sampled sequentially to achieve the n images after severity has been ordered in an ascending order. For example, if there are 30 leaves and n is set to 3, the leaves sampled will be the 1st, 15th, and 30th with the smallest severity values.
+Leaves with the smallest and highest severity will always be in the SAD. If `n = 1`, the leaf with the smallest severity will be returned. The others are sampled sequentially to achieve the n images after severity has been ordered in ascending order. For example, if there are 30 leaves and n is set to 3, the leaves sampled will be the 1st, 15th, and 30th with the smallest severity values.
 
 The SAD can be only computed if an image pattern name is used in argument `pattern` of `measure_disease()`. If the images are saved, the `n` images will be retrevied from `dir_processed` directory. Otherwise, the severity will be computed again to generate the images. A SAD with 8 images from the above example can be obtained easely with:
 
@@ -2251,7 +2249,7 @@ image_segment(img_bean, index = "all")
 
 ```
 
-Let's try to use the `NB` index to segment the leaf and background, and the `NGRDI` again to segment lesion and heathy tissues.
+Let's try to use the `NB` index to segment the leaf and background, and the `NGRDI` again to segment lesion and healthy tissues.
 
 
 ```{r segiter, fig.width=10}
@@ -2344,7 +2342,7 @@ lesion <-
 ```
 
 
-Here, an RGB-based indexe will be used to segment the diseased and healthy tissues. The first step is to choose an appropriate index.
+Here, an RGB-based index will be used to segment the diseased and healthy tissues. The first step is to choose an appropriate index.
 
 ```{r, features2, fig.width=10}
 image_segment(lesion, index = "all")
@@ -2374,7 +2372,7 @@ index_lesion <-
 EBImage::otsu(index_lesion$NGRDI, range = range(index_lesion$NGRDI))
 ```
 
-Users can set the argument `threshold` in order to provide more reliable segmentations. If any non-numeric value different than `"Otsu"` is provided in the `threshold` argument, an iterative section will be open so that users can choose a threshold value. In this case, I will simply plot the index computed above.
+Users can set the argument `threshold` to provide more reliable segmentations. If any non-numeric value different than `"Otsu"` is provided in the `threshold` argument, an iterative section will be open so that users can choose a threshold value. In this case, I will simply plot the index computed above.
 
 ```{r features4}
 plot(index_lesion)
@@ -2458,7 +2456,7 @@ image_segment(img, index = "all")
 ```
 
 
-In the following example, the background have similar color than the midrib. In this case, cropping the image so that the background is removed would solve the issue.
+In the following example, the background has a similar color to the midrib. In this case, cropping the image so that the background is removed would solve the issue.
 
 ```{r challenge3, fig.width=10}
 
