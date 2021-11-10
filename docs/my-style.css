@@ -1,0 +1,47 @@
+body {
+margin:0px;
+padding:0px;
+width:100%;
+font-size: 1.7em;
+line-height: 115%
+}
+
+img {
+ margin-top: 20px;
+ margin-bottom: 20px
+}
+
+h1,h2,h3,h4 {
+margin-bottom: 10px;
+margin-top: 8px;
+padding-top: 2px;
+font-family: 'Roboto', sans-serif;
+display: inline-block;
+width:100%
+}
+}
+h1.title {
+font-family: 'Roboto', sans-serif;
+font-size: 32px;
+line-height: 100%
+}
+
+pre code, pre, code {
+ margin-top: 5px;
+ margin-bottom: 20px;
+ font-size: 0.9em;
+ line-height:110%;
+  white-space: pre !important;
+  word-break: keep-all !important;
+  word-wrap: initial !important
+}
+
+
+blockquote {
+margin-top: 0px;
+margin-bottom: 50px;
+font-size: 0.5em;
+line-height:110%;
+background-color: #f2f2f2;
+}
+
