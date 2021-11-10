@@ -8,5 +8,5 @@ code_cache
 *.pdf
 data/disease_severity/soybean_rust/soy_severity.R
 .RDataTmp
-code_files
+/code_files
 ~WRL3692.tmp
