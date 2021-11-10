@@ -24,8 +24,11 @@ navbar:
     href: https://github.com/TiagoOlivoto/paper_pliman/archive/refs/heads/master.zip
   - text: "Doi"
     icon: ai ai-doi ai
-    href: https://github.com/TiagoOlivoto/paper_tpp/archive/refs/heads/main.zip
+    href: https://doi.org/10.5281/zenodo.5666820
   right:
-  - text: Source
+  - text: Material
     icon: fa-github
     href: https://github.com/TiagoOlivoto/paper_pliman
+  - text: Package
+    icon: fa-github
+    href: https://github.com/TiagoOlivoto/pliman

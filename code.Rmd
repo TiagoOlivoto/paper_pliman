@@ -2497,5 +2497,3 @@ img3 <-
 image_segment(img3, index = "all")
 
 ```
-
-

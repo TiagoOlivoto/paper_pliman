@@ -1,6 +1,5 @@
 % About
-
-# About
+# <i class="fas fa-glasses"></i>About
 In this website are available the codes used to reproduce the analysis and results of the paper describing the pliman R package
 
 <img src = "figs/logo_pliman.jpg" width = 200px align = right>  `pliman` (**pl**ant **im**age **an**alysis) is designed to analyze plant images, especially related to leaf and grains.  The package will help you to:
@@ -22,7 +21,7 @@ In this website are available the codes used to reproduce the analysis and resul
 `pliman` also provides useful functions for [operation](https://tiagoolivoto.github.io/pliman/reference/image_combine.html), [transformation](https://tiagoolivoto.github.io/pliman/reference/utils_transform.html), and [segmentation](https://tiagoolivoto.github.io/pliman/reference/image_binary.html) of images. Please, visit the [Examples](https://tiagoolivoto.github.io/pliman/index.html) page in `pliman` website for a detailed documentation of each function.
 
 
-# How to reproduce?
+# <i class="fas fa-code"></i>How to reproduce?
 
 * Download data
 
@@ -45,3 +44,11 @@ An alternative way is by downloading the [ZIP file](https://github.com/TiagoOliv
 <!-- final academic icons -->
 <!-- inicio font awesome -->
 <script src="https://kit.fontawesome.com/1f72d6921a.js" crossorigin="anonymous"></script>
+
+
+
+# <i class="fas fa-scroll"></i> Take a look!
+
+The following talk (Portuguese language) was ministered to attend the invitation of the President of the Brazilian Region of the International Biometric Society (RBras).
+
+<iframe width="760" height="430" src="https://www.youtube.com/embed/ElvUVlPocgA" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
