@@ -1655,7 +1655,7 @@ Let’s compute the leaf area of <code>leaves</code> with <code>analyze_objects(
 <span id="cb98-9"><a href="#cb98-9" aria-hidden="true" tabindex="-1"></a>                    <span class="at">verbose =</span> <span class="cn">FALSE</span>)</span>
 <span id="cb98-10"><a href="#cb98-10" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb98-11"><a href="#cb98-11" aria-hidden="true" tabindex="-1"></a><span class="do">##   usuário   sistema decorrido </span></span>
-<span id="cb98-12"><a href="#cb98-12" aria-hidden="true" tabindex="-1"></a><span class="do">##      0.14      0.03      7.08</span></span>
+<span id="cb98-12"><a href="#cb98-12" aria-hidden="true" tabindex="-1"></a><span class="do">##      0.10      0.03      7.02</span></span>
 <span id="cb98-13"><a href="#cb98-13" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb98-14"><a href="#cb98-14" aria-hidden="true" tabindex="-1"></a><span class="co"># adjust the measures considering 100 dpi (the same as LeafArea)</span></span>
 <span id="cb98-15"><a href="#cb98-15" aria-hidden="true" tabindex="-1"></a>area <span class="ot">&lt;-</span> <span class="fu">get_measures</span>(plm, <span class="at">dpi =</span> <span class="dv">100</span>)</span></code></pre></div>
@@ -1942,7 +1942,7 @@ Let’s compute the leaf area of <code>leaves</code> with <code>analyze_objects(
 <p><img src="code_files/figure-html/merge1-2.png" width="768" /></p>
 <pre><code>## Processing image L2_1 |==========                                | 25% 00:00:00 </code></pre>
 <p><img src="code_files/figure-html/merge1-3.png" width="768" /></p>
-<pre><code>## Processing image L2_2 |==============                            | 33% 00:00:00 </code></pre>
+<pre><code>## Processing image L2_2 |==============                            | 33% 00:00:01 </code></pre>
 <p><img src="code_files/figure-html/merge1-4.png" width="768" /></p>
 <pre><code>## Processing image L3_1 |==================                        | 42% 00:00:01 </code></pre>
 <p><img src="code_files/figure-html/merge1-5.png" width="768" /></p>
@@ -1950,13 +1950,13 @@ Let’s compute the leaf area of <code>leaves</code> with <code>analyze_objects(
 <p><img src="code_files/figure-html/merge1-6.png" width="768" /></p>
 <pre><code>## Processing image L3_3 |========================                  | 58% 00:00:01 </code></pre>
 <p><img src="code_files/figure-html/merge1-7.png" width="768" /></p>
-<pre><code>## Processing image L4_1 |============================              | 67% 00:00:01 </code></pre>
+<pre><code>## Processing image L4_1 |============================              | 67% 00:00:02 </code></pre>
 <p><img src="code_files/figure-html/merge1-8.png" width="768" /></p>
 <pre><code>## Processing image L4_2 |================================          | 75% 00:00:02 </code></pre>
 <p><img src="code_files/figure-html/merge1-9.png" width="768" /></p>
 <pre><code>## Processing image L4_3 |===================================       | 83% 00:00:02 </code></pre>
 <p><img src="code_files/figure-html/merge1-10.png" width="768" /></p>
-<pre><code>## Processing image L5_1 |======================================    | 92% 00:00:02 </code></pre>
+<pre><code>## Processing image L5_1 |======================================    | 92% 00:00:03 </code></pre>
 <p><img src="code_files/figure-html/merge1-11.png" width="768" /></p>
 <pre><code>## Processing image L5_2 |==========================================| 100% 00:00:03 
 ## --------------------------------------------
@@ -2023,7 +2023,7 @@ Let’s compute the leaf area of <code>leaves</code> with <code>analyze_objects(
 <p><img src="code_files/figure-html/merge7-2.png" width="768" /></p>
 <pre><code>## Processing image leaf3 |=========================                | 60% 00:00:01 </code></pre>
 <p><img src="code_files/figure-html/merge7-3.png" width="768" /></p>
-<pre><code>## Processing image leaf4 |=================================        | 80% 00:00:01 </code></pre>
+<pre><code>## Processing image leaf4 |=================================        | 80% 00:00:02 </code></pre>
 <p><img src="code_files/figure-html/merge7-4.png" width="768" /></p>
 <pre><code>## Processing image leaf5 |=========================================| 100% 00:00:02 
 ## --------------------------------------------
@@ -2250,7 +2250,7 @@ object_coord(img, id = c(2, 3))</code></pre>
 <p><img src="code_files/figure-html/disease2-2.png" width="960" /></p>
 <pre><code>## $severity
 ##    healthy symptomatic
-## 1 88.58382    11.41618
+## 1 89.08467    10.91533
 ## 
 ## $shape
 ## NULL
@@ -2295,7 +2295,7 @@ image_combine(masks, ncol = 3)</code></pre>
 <div class="sourceCode" id="cb162"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb162-1"><a href="#cb162-1" aria-hidden="true" tabindex="-1"></a>res<span class="sc">$</span>severity</span></code></pre></div>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
-{"columns":[{"label":["healthy"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["symptomatic"],"name":[2],"type":["dbl"],"align":["right"]}],"data":[{"1":"93.52854","2":"6.471461"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":["healthy"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["symptomatic"],"name":[2],"type":["dbl"],"align":["right"]}],"data":[{"1":"93.85779","2":"6.142209"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 <div class="sourceCode" id="cb163"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb163-1"><a href="#cb163-1" aria-hidden="true" tabindex="-1"></a></span>
@@ -2346,11 +2346,11 @@ image_combine(masks, ncol = 3)</code></pre>
 <span id="cb166-13"><a href="#cb166-13" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb166-14"><a href="#cb166-14" aria-hidden="true" tabindex="-1"></a><span class="do">## Image processing using multiple sessions (6). Please wait.</span></span>
 <span id="cb166-15"><a href="#cb166-15" aria-hidden="true" tabindex="-1"></a><span class="do">##   usuário   sistema decorrido </span></span>
-<span id="cb166-16"><a href="#cb166-16" aria-hidden="true" tabindex="-1"></a><span class="do">##      0.24      0.03     35.25</span></span>
+<span id="cb166-16"><a href="#cb166-16" aria-hidden="true" tabindex="-1"></a><span class="do">##      0.21      0.03     29.89</span></span>
 <span id="cb166-17"><a href="#cb166-17" aria-hidden="true" tabindex="-1"></a>soy_rust<span class="sc">$</span>severity</span></code></pre></div>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
-{"columns":[{"label":["img"],"name":[1],"type":["chr"],"align":["left"]},{"label":["healthy"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["symptomatic"],"name":[3],"type":["dbl"],"align":["right"]}],"data":[{"1":"soy_1","2":"92.763477","3":"7.236523"},{"1":"soy_10","2":"84.707515","3":"15.292485"},{"1":"soy_11","2":"16.846272","3":"83.153728"},{"1":"soy_12","2":"65.834855","3":"34.165145"},{"1":"soy_13","2":"78.011419","3":"21.988581"},{"1":"soy_14","2":"62.734215","3":"37.265785"},{"1":"soy_15","2":"59.486583","3":"40.513417"},{"1":"soy_16","2":"42.676951","3":"57.323049"},{"1":"soy_17","2":"77.919509","3":"22.080491"},{"1":"soy_18","2":"54.455763","3":"45.544237"},{"1":"soy_19","2":"87.650491","3":"12.349509"},{"1":"soy_2","2":"65.529760","3":"34.470240"},{"1":"soy_20","2":"52.778897","3":"47.221103"},{"1":"soy_21","2":"99.793441","3":"0.206559"},{"1":"soy_22","2":"72.008150","3":"27.991850"},{"1":"soy_23","2":"30.082692","3":"69.917308"},{"1":"soy_24","2":"20.901226","3":"79.098774"},{"1":"soy_25","2":"81.713534","3":"18.286466"},{"1":"soy_26","2":"38.766055","3":"61.233945"},{"1":"soy_27","2":"34.031506","3":"65.968494"},{"1":"soy_28","2":"35.037163","3":"64.962837"},{"1":"soy_29","2":"74.883956","3":"25.116044"},{"1":"soy_3","2":"58.660361","3":"41.339639"},{"1":"soy_30","2":"73.643796","3":"26.356204"},{"1":"soy_31","2":"9.722557","3":"90.277443"},{"1":"soy_32","2":"27.189984","3":"72.810016"},{"1":"soy_33","2":"30.529748","3":"69.470252"},{"1":"soy_34","2":"52.503705","3":"47.496295"},{"1":"soy_35","2":"22.601506","3":"77.398494"},{"1":"soy_36","2":"42.566629","3":"57.433371"},{"1":"soy_37","2":"14.161403","3":"85.838597"},{"1":"soy_38","2":"46.821332","3":"53.178668"},{"1":"soy_39","2":"90.576011","3":"9.423989"},{"1":"soy_4","2":"44.920676","3":"55.079324"},{"1":"soy_40","2":"61.881697","3":"38.118303"},{"1":"soy_41","2":"95.187495","3":"4.812505"},{"1":"soy_42","2":"36.556708","3":"63.443292"},{"1":"soy_43","2":"51.532227","3":"48.467773"},{"1":"soy_44","2":"43.191096","3":"56.808904"},{"1":"soy_45","2":"66.647376","3":"33.352624"},{"1":"soy_46","2":"97.033109","3":"2.966891"},{"1":"soy_47","2":"86.273183","3":"13.726817"},{"1":"soy_48","2":"90.499038","3":"9.500962"},{"1":"soy_49","2":"57.289349","3":"42.710651"},{"1":"soy_5","2":"83.153624","3":"16.846376"},{"1":"soy_50","2":"83.798674","3":"16.201326"},{"1":"soy_6","2":"77.253674","3":"22.746326"},{"1":"soy_7","2":"75.384661","3":"24.615339"},{"1":"soy_8","2":"70.871445","3":"29.128555"},{"1":"soy_9","2":"55.055689","3":"44.944311"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":["img"],"name":[1],"type":["chr"],"align":["left"]},{"label":["healthy"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["symptomatic"],"name":[3],"type":["dbl"],"align":["right"]}],"data":[{"1":"soy_1","2":"92.874333","3":"7.1256674"},{"1":"soy_10","2":"84.929895","3":"15.0701051"},{"1":"soy_11","2":"16.788941","3":"83.2110587"},{"1":"soy_12","2":"65.762244","3":"34.2377560"},{"1":"soy_13","2":"77.772587","3":"22.2274134"},{"1":"soy_14","2":"65.084894","3":"34.9151059"},{"1":"soy_15","2":"58.596458","3":"41.4035424"},{"1":"soy_16","2":"42.967891","3":"57.0321094"},{"1":"soy_17","2":"76.699381","3":"23.3006186"},{"1":"soy_18","2":"53.996702","3":"46.0032980"},{"1":"soy_19","2":"87.994402","3":"12.0055980"},{"1":"soy_2","2":"61.180833","3":"38.8191666"},{"1":"soy_20","2":"52.153802","3":"47.8461977"},{"1":"soy_21","2":"99.822915","3":"0.1770855"},{"1":"soy_22","2":"72.846282","3":"27.1537184"},{"1":"soy_23","2":"30.384591","3":"69.6154091"},{"1":"soy_24","2":"19.654041","3":"80.3459586"},{"1":"soy_25","2":"79.818477","3":"20.1815230"},{"1":"soy_26","2":"41.082405","3":"58.9175954"},{"1":"soy_27","2":"33.089895","3":"66.9101046"},{"1":"soy_28","2":"33.998675","3":"66.0013249"},{"1":"soy_29","2":"72.899092","3":"27.1009082"},{"1":"soy_3","2":"58.359826","3":"41.6401741"},{"1":"soy_30","2":"72.440162","3":"27.5598377"},{"1":"soy_31","2":"9.968245","3":"90.0317554"},{"1":"soy_32","2":"26.676283","3":"73.3237167"},{"1":"soy_33","2":"31.454574","3":"68.5454260"},{"1":"soy_34","2":"53.239148","3":"46.7608523"},{"1":"soy_35","2":"24.079397","3":"75.9206030"},{"1":"soy_36","2":"42.732277","3":"57.2677230"},{"1":"soy_37","2":"14.695744","3":"85.3042556"},{"1":"soy_38","2":"47.284111","3":"52.7158888"},{"1":"soy_39","2":"89.759052","3":"10.2409475"},{"1":"soy_4","2":"46.109856","3":"53.8901443"},{"1":"soy_40","2":"59.963810","3":"40.0361899"},{"1":"soy_41","2":"94.869140","3":"5.1308598"},{"1":"soy_42","2":"36.355547","3":"63.6444531"},{"1":"soy_43","2":"51.043984","3":"48.9560162"},{"1":"soy_44","2":"41.756509","3":"58.2434914"},{"1":"soy_45","2":"68.253930","3":"31.7460700"},{"1":"soy_46","2":"97.255382","3":"2.7446178"},{"1":"soy_47","2":"86.821296","3":"13.1787043"},{"1":"soy_48","2":"90.097491","3":"9.9025086"},{"1":"soy_49","2":"57.954677","3":"42.0453233"},{"1":"soy_5","2":"83.519701","3":"16.4802994"},{"1":"soy_50","2":"83.788306","3":"16.2116940"},{"1":"soy_6","2":"79.594545","3":"20.4054551"},{"1":"soy_7","2":"75.940513","3":"24.0594865"},{"1":"soy_8","2":"69.812381","3":"30.1876187"},{"1":"soy_9","2":"50.574517","3":"49.4254833"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 <div class="sourceCode" id="cb167"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb167-1"><a href="#cb167-1" aria-hidden="true" tabindex="-1"></a><span class="co"># image directory</span></span>
@@ -2369,21 +2369,21 @@ image_combine(masks, ncol = 3)</code></pre>
 <img src="code_files/figure-html/sad-1.png" width="960" />
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
-{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["img"],"name":[1],"type":["chr"],"align":["left"]},{"label":["healthy"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["symptomatic"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["rank"],"name":[4],"type":["dbl"],"align":["right"]}],"data":[{"1":"soy_21","2":"99.793441","3":"0.206559","4":"1","_rn_":"14"},{"1":"soy_29","2":"74.883956","3":"25.116044","4":"17","_rn_":"22"},{"1":"soy_43","2":"51.532227","3":"48.467773","4":"33","_rn_":"38"},{"1":"soy_31","2":"9.722557","3":"90.277443","4":"50","_rn_":"25"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["img"],"name":[1],"type":["chr"],"align":["left"]},{"label":["healthy"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["symptomatic"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["rank"],"name":[4],"type":["dbl"],"align":["right"]}],"data":[{"1":"soy_21","2":"99.822915","3":"0.1770855","4":"1","_rn_":"14"},{"1":"soy_29","2":"72.899092","3":"27.1009082","4":"17","_rn_":"22"},{"1":"soy_9","2":"50.574517","3":"49.4254833","4":"33","_rn_":"50"},{"1":"soy_31","2":"9.968245","3":"90.0317554","4":"50","_rn_":"25"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 <div class="sourceCode" id="cb169"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb169-1"><a href="#cb169-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sad</span>(soy_rust, <span class="at">n =</span> <span class="dv">8</span>, <span class="at">ncol =</span> <span class="dv">4</span>)</span></code></pre></div>
 <img src="code_files/figure-html/sad-2.png" width="960" />
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
-{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["img"],"name":[1],"type":["chr"],"align":["left"]},{"label":["healthy"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["symptomatic"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["rank"],"name":[4],"type":["dbl"],"align":["right"]}],"data":[{"1":"soy_21","2":"99.793441","3":"0.206559","4":"1","_rn_":"14"},{"1":"soy_47","2":"86.273183","3":"13.726817","4":"8","_rn_":"42"},{"1":"soy_6","2":"77.253674","3":"22.746326","4":"15","_rn_":"47"},{"1":"soy_12","2":"65.834855","3":"34.165145","4":"22","_rn_":"4"},{"1":"soy_9","2":"55.055689","3":"44.944311","4":"29","_rn_":"50"},{"1":"soy_44","2":"43.191096","3":"56.808904","4":"36","_rn_":"39"},{"1":"soy_33","2":"30.529748","3":"69.470252","4":"43","_rn_":"27"},{"1":"soy_31","2":"9.722557","3":"90.277443","4":"50","_rn_":"25"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["img"],"name":[1],"type":["chr"],"align":["left"]},{"label":["healthy"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["symptomatic"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["rank"],"name":[4],"type":["dbl"],"align":["right"]}],"data":[{"1":"soy_21","2":"99.822915","3":"0.1770855","4":"1","_rn_":"14"},{"1":"soy_47","2":"86.821296","3":"13.1787043","4":"8","_rn_":"42"},{"1":"soy_17","2":"76.699381","3":"23.3006186","4":"15","_rn_":"9"},{"1":"soy_12","2":"65.762244","3":"34.2377560","4":"22","_rn_":"4"},{"1":"soy_18","2":"53.996702","3":"46.0032980","4":"29","_rn_":"10"},{"1":"soy_16","2":"42.967891","3":"57.0321094","4":"36","_rn_":"8"},{"1":"soy_33","2":"31.454574","3":"68.5454260","4":"43","_rn_":"27"},{"1":"soy_31","2":"9.968245","3":"90.0317554","4":"50","_rn_":"25"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 <div class="sourceCode" id="cb170"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb170-1"><a href="#cb170-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sad</span>(soy_rust, <span class="at">n =</span> <span class="dv">12</span>, <span class="at">ncol =</span> <span class="dv">4</span>)</span></code></pre></div>
 <img src="code_files/figure-html/sad-3.png" width="960" />
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
-{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["img"],"name":[1],"type":["chr"],"align":["left"]},{"label":["healthy"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["symptomatic"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["rank"],"name":[4],"type":["dbl"],"align":["right"]}],"data":[{"1":"soy_21","2":"99.793441","3":"0.206559","4":"1","_rn_":"14"},{"1":"soy_39","2":"90.576011","3":"9.423989","4":"5","_rn_":"33"},{"1":"soy_10","2":"84.707515","3":"15.292485","4":"9","_rn_":"2"},{"1":"soy_17","2":"77.919509","3":"22.080491","4":"14","_rn_":"9"},{"1":"soy_30","2":"73.643796","3":"26.356204","4":"18","_rn_":"24"},{"1":"soy_2","2":"65.529760","3":"34.470240","4":"23","_rn_":"12"},{"1":"soy_3","2":"58.660361","3":"41.339639","4":"27","_rn_":"23"},{"1":"soy_34","2":"52.503705","3":"47.496295","4":"32","_rn_":"28"},{"1":"soy_44","2":"43.191096","3":"56.808904","4":"36","_rn_":"39"},{"1":"soy_28","2":"35.037163","3":"64.962837","4":"41","_rn_":"21"},{"1":"soy_32","2":"27.189984","3":"72.810016","4":"45","_rn_":"26"},{"1":"soy_31","2":"9.722557","3":"90.277443","4":"50","_rn_":"25"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["img"],"name":[1],"type":["chr"],"align":["left"]},{"label":["healthy"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["symptomatic"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["rank"],"name":[4],"type":["dbl"],"align":["right"]}],"data":[{"1":"soy_21","2":"99.822915","3":"0.1770855","4":"1","_rn_":"14"},{"1":"soy_48","2":"90.097491","3":"9.9025086","4":"5","_rn_":"43"},{"1":"soy_10","2":"84.929895","3":"15.0701051","4":"9","_rn_":"2"},{"1":"soy_13","2":"77.772587","3":"22.2274134","4":"14","_rn_":"5"},{"1":"soy_22","2":"72.846282","3":"27.1537184","4":"18","_rn_":"15"},{"1":"soy_14","2":"65.084894","3":"34.9151059","4":"23","_rn_":"6"},{"1":"soy_3","2":"58.359826","3":"41.6401741","4":"27","_rn_":"23"},{"1":"soy_43","2":"51.043984","3":"48.9560162","4":"32","_rn_":"38"},{"1":"soy_16","2":"42.967891","3":"57.0321094","4":"36","_rn_":"8"},{"1":"soy_28","2":"33.998675","3":"66.0013249","4":"41","_rn_":"21"},{"1":"soy_32","2":"26.676283","3":"73.3237167","4":"45","_rn_":"26"},{"1":"soy_31","2":"9.968245","3":"90.0317554","4":"50","_rn_":"25"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 </div>
@@ -2414,7 +2414,7 @@ image_combine(masks, ncol = 3)</code></pre>
 <span id="cb174-10"><a href="#cb174-10" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb174-11"><a href="#cb174-11" aria-hidden="true" tabindex="-1"></a><span class="do">## Image processing using multiple sessions (6). Please wait.</span></span>
 <span id="cb174-12"><a href="#cb174-12" aria-hidden="true" tabindex="-1"></a><span class="do">##   usuário   sistema decorrido </span></span>
-<span id="cb174-13"><a href="#cb174-13" aria-hidden="true" tabindex="-1"></a><span class="do">##      0.23      0.02     15.75</span></span></code></pre></div>
+<span id="cb174-13"><a href="#cb174-13" aria-hidden="true" tabindex="-1"></a><span class="do">##      0.29      0.04     16.79</span></span></code></pre></div>
 </div>
 </div>
 <div id="bean-angular-spot" class="section level3" number="18.4.2">
@@ -2441,11 +2441,11 @@ image_combine(masks, ncol = 3)</code></pre>
 <span id="cb176-13"><a href="#cb176-13" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb176-14"><a href="#cb176-14" aria-hidden="true" tabindex="-1"></a><span class="do">## Image processing using multiple sessions (6). Please wait.</span></span>
 <span id="cb176-15"><a href="#cb176-15" aria-hidden="true" tabindex="-1"></a><span class="do">##   usuário   sistema decorrido </span></span>
-<span id="cb176-16"><a href="#cb176-16" aria-hidden="true" tabindex="-1"></a><span class="do">##      0.25      0.03      6.80</span></span>
+<span id="cb176-16"><a href="#cb176-16" aria-hidden="true" tabindex="-1"></a><span class="do">##      0.31      0.02      6.52</span></span>
 <span id="cb176-17"><a href="#cb176-17" aria-hidden="true" tabindex="-1"></a>bean_spot<span class="sc">$</span>severity</span></code></pre></div>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
-{"columns":[{"label":["img"],"name":[1],"type":["chr"],"align":["left"]},{"label":["healthy"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["symptomatic"],"name":[3],"type":["dbl"],"align":["right"]}],"data":[{"1":"bean_F1","2":"98.80261","3":"1.1973883"},{"1":"bean_F10","2":"99.49336","3":"0.5066376"},{"1":"bean_F11","2":"72.23525","3":"27.7647467"},{"1":"bean_F12","2":"90.95693","3":"9.0430668"},{"1":"bean_F13","2":"86.44015","3":"13.5598486"},{"1":"bean_F14","2":"87.19752","3":"12.8024831"},{"1":"bean_F15","2":"86.40617","3":"13.5938265"},{"1":"bean_F16","2":"27.65421","3":"72.3457940"},{"1":"bean_F17","2":"99.84062","3":"0.1593822"},{"1":"bean_F18","2":"92.39658","3":"7.6034211"},{"1":"bean_F19","2":"90.36361","3":"9.6363852"},{"1":"bean_F2","2":"84.70623","3":"15.2937732"},{"1":"bean_F3","2":"76.38867","3":"23.6113345"},{"1":"bean_F4","2":"82.05567","3":"17.9443260"},{"1":"bean_F5","2":"94.77471","3":"5.2252930"},{"1":"bean_F6","2":"97.44314","3":"2.5568608"},{"1":"bean_F7","2":"99.24083","3":"0.7591721"},{"1":"bean_F8","2":"75.70760","3":"24.2924019"},{"1":"bean_F9","2":"76.40470","3":"23.5953010"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":["img"],"name":[1],"type":["chr"],"align":["left"]},{"label":["healthy"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["symptomatic"],"name":[3],"type":["dbl"],"align":["right"]}],"data":[{"1":"bean_F1","2":"98.74237","3":"1.2576276"},{"1":"bean_F10","2":"99.48663","3":"0.5133734"},{"1":"bean_F11","2":"73.36845","3":"26.6315499"},{"1":"bean_F12","2":"90.82238","3":"9.1776215"},{"1":"bean_F13","2":"87.02675","3":"12.9732528"},{"1":"bean_F14","2":"86.73416","3":"13.2658421"},{"1":"bean_F15","2":"85.67234","3":"14.3276553"},{"1":"bean_F16","2":"27.42496","3":"72.5750371"},{"1":"bean_F17","2":"99.82176","3":"0.1782379"},{"1":"bean_F18","2":"92.67247","3":"7.3275278"},{"1":"bean_F19","2":"90.37318","3":"9.6268162"},{"1":"bean_F2","2":"84.09141","3":"15.9085918"},{"1":"bean_F3","2":"76.26581","3":"23.7341925"},{"1":"bean_F4","2":"81.60759","3":"18.3924118"},{"1":"bean_F5","2":"94.69780","3":"5.3022049"},{"1":"bean_F6","2":"97.48678","3":"2.5132203"},{"1":"bean_F7","2":"99.29445","3":"0.7055517"},{"1":"bean_F8","2":"75.57240","3":"24.4275999"},{"1":"bean_F9","2":"76.10810","3":"23.8919005"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 <div class="sourceCode" id="cb177"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb177-1"><a href="#cb177-1" aria-hidden="true" tabindex="-1"></a><span class="co"># image directory</span></span>
@@ -2492,7 +2492,7 @@ image_combine(masks, ncol = 3)</code></pre>
 <span id="cb182-10"><a href="#cb182-10" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb182-11"><a href="#cb182-11" aria-hidden="true" tabindex="-1"></a><span class="do">## Image processing using multiple sessions (6). Please wait.</span></span>
 <span id="cb182-12"><a href="#cb182-12" aria-hidden="true" tabindex="-1"></a><span class="do">##   usuário   sistema decorrido </span></span>
-<span id="cb182-13"><a href="#cb182-13" aria-hidden="true" tabindex="-1"></a><span class="do">##      0.25      0.04      3.09</span></span></code></pre></div>
+<span id="cb182-13"><a href="#cb182-13" aria-hidden="true" tabindex="-1"></a><span class="do">##      0.23      0.06      2.91</span></span></code></pre></div>
 </div>
 </div>
 </div>
