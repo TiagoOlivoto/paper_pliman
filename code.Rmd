@@ -922,7 +922,7 @@ get_ccc(validation, real, predicted)
 ### concordance by resolution, filtering, crop, background
 df_ccc <-
   validation %>%
-  group_by(filter) %>%
+  group_by(filter, resolution, background, crop) %>%
   get_ccc(real, predicted) %>%
   mutate(rho = paste0("rho[c]:~", round(pc, 3)),
          bc = paste0("C[b]:~", round(bc, 3)),
@@ -2422,7 +2422,7 @@ ggplot(bench, aes(resolution, avg, fill = strategy)) +
             vjust = -0.5,
             hjust = 0.5,
             size = 3) +
-  # my_theme() +
+  my_theme() +
   labs(x = "Filter",
        y = expression(Processing~time~(s~image^{-1})))
 ggsave("figs/benchmarking_sev.pdf", width = 4, height = 4.5)
